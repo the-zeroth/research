@@ -1,0 +1,36 @@
+\section{Threats to Validity}
+\label{sec:threats}
+
+Our numbers resolve differences of about two to three tasks out of 30, so the claim we can make is
+that no single lever we shipped or rejected moved the held-out score by more than that.
+
+\begin{itemize}[leftmargin=1.4em]
+  \item \textbf{Noise.} A two-against-two read on the unread 30 has a null standard deviation of
+    about 1.4, and every single-variable lever we measured there landed within 2 of its base; only
+    the change of configuration in \cref{sec:structure} (profile and effort together) exceeded it.
+    Smaller real effects, positive or negative, would not show.
+  \item \textbf{Many tests on one held-out set.} The unread 30 were never opened, but dozens of
+    levers were read against them, and each read leaks a little information
+    \citep{dwork2015reusable}. A lever that passed by luck would be adopted by mistake; we adopted
+    few, and confirmed the main one over several draws.
+  \item \textbf{Sampling driven by quota.} Draws came from a subscription sign-in with a weekly
+    quota. Batches paused when it ran low (26 October, 8 November, 20 November), screens ran on a
+    cheaper model first, and some arms stopped early once their bar was out of reach.
+  \item \textbf{Sign-in, not API.} Almost every run used a ChatGPT (Codex) sign-in. Costs are
+    list-price reconstructions from the server's price table, and the API path was checked only by
+    a four-attempt smoke test through OpenRouter. Rate limits, latency and caching may differ on the
+    API.
+  \item \textbf{One machine.} Thirty attempts shared one desktop PC, so attempts ran slower than on
+    per-task cloud machines, and verifiers sometimes timed out under load (handled by quiet
+    re-grades). The PC has no GPU, so 3 of the 66 tasks never ran.
+  \item \textbf{Self-run results.} The Terminal-Bench~4.1 run was run and scored by us, not by AA or
+    the Terminal-Bench maintainers. The adapter is public so that it can be reproduced
+    (\cref{app:repro}).
+  \item \textbf{We built both sides.} The product, the V1 suite and its graders are ours. Blind
+    solves caught two grader defects and later audits retired or repaired unfair tasks, but others
+    may remain. Our reward-hacking scan is a heuristic, and the two held-out attempts it flagged are
+    unjudged.
+  \item \textbf{The product moved.} The product changed during the programs, which is why every
+    comparison is within one batch. Results on GPT-6.1 need not hold on GPT-6.2, and results on
+    Terminal-Bench~4.0 need not hold on 4.1 (one task differs).
+\end{itemize}

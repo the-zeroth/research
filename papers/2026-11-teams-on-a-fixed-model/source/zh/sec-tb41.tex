@@ -1,0 +1,129 @@
+\section{最终配置在 Terminal-Bench 4.1 上的表现（RQ4）}
+\label{sec:tb41}
+
+The One 0.5.2 的团队 7.0，用 GPT-6.2 Sol、max 强度，在能运行的 63 道题上得分 60.9\%，在全部 66 道题上（3 道 GPU 题记为
+零分）得分 58.1\%。这与 AA 跑出的同一模型、同一强度下的 Codex（58.1\%）持平，与 Terminal-Bench 维护者跑出的结果（61.5\%）
+也在噪声范围之内。
+
+\para{设置}Harbor 0.26.0，使用 AA 的数据集摘要版本；每个任务容器里安装已发布的服务端 0.5.2；GPT-6.2 Sol、max 强度，
+通过 ChatGPT 账号登录；每题三次尝试，与 AA 的协议一致；在一台没有 GPU 的 Linux 电脑上同时运行 30 次；遵守
+Terminal-Bench 8 小时的智能体时限。有两次留出题的尝试在智能体启动前下载服务端时中断；按 Terminal-Bench 维护者重跑
+基础设施错误的做法，我们重跑了这两次，结果仍为 0 分。与我们的 Terminal-Bench~4.0 副本相比，4.1 只有一道题不同。
+
+\begin{table}[t]
+\centering
+\small
+\caption{The One 0.5.2、团队 7.0、GPT-6.2 Sol、max 强度在 Terminal-Bench~4.1 上的结果，每题三次尝试。在全部 66 道题上
+（3 道 GPU 题记为 0），平均奖励为 58.1\%（115/198）。}
+\label{tab:tb41}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+ & 可读 33 道 & 留出 30 道 & 全部 63 道 \\
+\midrule
+平均奖励 & 62.6\%（62/99） & 58.9\%（53/90） & 60.9\%（115/189） \\
+至少解出一次的题数 & 24 & 20 & 44 \\
+每次尝试的智能体用时（分钟），中位数（均值） & 24.7（34.5） & 18.1（20.5） & 20.5（27.8） \\
+每次尝试按公开标价的平均成本 & 1.61 美元 & 1.06 美元 & 1.35 美元 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+表~\ref{tab:tb41} 按划分给出结果；留出题的得分与可读题相差不到四个百分点。整次运行按公开标价花费 255 美元，墙钟时间
+6.97 小时。一次尝试平均使用 316 万个输入 token，其中 90\% 命中缓存；输出 4.5 万个 token，其中 55\% 是推理 token。
+有一道可读题的三次尝试每次都用了约五个小时，拉高了平均用时。
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.50\textwidth, height=7.6cm,
+  xmin=45, xmax=71, ymin=0.4, ymax=11.6, y dir=reverse,
+  xtick={45,50,55,60,65,70},
+  ytick={1,...,11},
+  yticklabels={
+    {Kimi Code + Kimi K3.1 Pro},
+    {Claude Code + Claude Sonnet 5.5 (max)},
+    {Antigravity + Gemini 4 Neon},
+    {Claude Code + Claude Fable 5.2 (xhigh)},
+    {Codex + GPT-6.2 Astra (max)},
+    {Codex + GPT-6.2 Astra (xhigh)},
+    {\textcolor{ours}{\textbf{The One + GPT-6.2 Sol (max)，63 道}}},
+    {Codex + GPT-6.2 Sol (max)},
+    {\textcolor{ours}{\textbf{The One + GPT-6.2 Sol (max)，66 道}}},
+    {Codex + GPT-6.2 Sol (xhigh)},
+    {Codex + GPT-6.2 Sol (medium)}},
+  yticklabel style={font=\footnotesize},
+  tick label style={font=\footnotesize},
+  xlabel={三次尝试的平均奖励（\%）},
+  xlabel style={font=\footnotesize},
+  xmajorgrids, grid style={ruleGray!45},
+  axis x line*=bottom, axis y line*=left,
+  y axis line style={draw=none}, ytick style={draw=none},
+  clip=false,
+]
+  \addplot[xcomb, draw=ruleGray, line width=0.6pt] coordinates
+    {(67.2,1) (65.7,2) (65.2,3) (64.1,4) (63.6,5) (62.1,6) (60.9,7) (58.1,8) (58.1,9) (57.6,10) (49.5,11)};
+  \addplot[only marks, mark=*, mark size=2.4pt, color=other,
+    nodes near coords, nodes near coords style={font=\scriptsize, anchor=west, xshift=1pt, text=ink!85},
+    point meta=explicit symbolic] coordinates
+    {(67.2,1) [67.2] (65.7,2) [65.7] (65.2,3) [65.2] (64.1,4) [64.1] (63.6,5) [63.6]
+     (62.1,6) [62.1] (58.1,8) [58.1] (57.6,10) [57.6] (49.5,11) [49.5]};
+  \addplot[only marks, mark=*, mark size=2.6pt, color=ours,
+    nodes near coords, nodes near coords style={font=\scriptsize\bfseries, anchor=west, xshift=1pt, text=ours},
+    point meta=explicit symbolic] coordinates {(58.1,9) [58.1]};
+  \addplot[only marks, mark=o, mark size=2.6pt, color=ours, thick,
+    nodes near coords, nodes near coords style={font=\scriptsize\bfseries, anchor=west, xshift=1pt, text=ours},
+    point meta=explicit symbolic] coordinates {(60.9,7) [60.9]};
+\end{axis}
+\end{tikzpicture}
+\caption{AA 协议下的 Terminal-Bench~4.1（每题三次尝试）。灰色：AA 自己跑的其他智能体，2026 年 11 月 20 日读自其编程智能体
+页面 \citep{aa2026coding}。橙色实心：我们在全部 66 道题上的结果，3 道 GPU 题记为 0，可与 AA 各行直接比较。空心：我们在
+能运行的 63 道题上的结果，不可直接比较。横轴从 45\% 开始。}
+\label{fig:board}
+\end{figure}
+
+\para{与榜单比较}AA 按基准给出 token 数，但成本和时间只按智能体、在它的全部基准上汇总给出，因此我们按同样的公开标价
+自己计算了它的 Codex 各行（表~\ref{tab:cost}）。Codex 在 GPT-6.2 Sol、max 强度下每次尝试用 448 万输入 token 和 5.1 万输出
+token，按公开标价约 1.42 美元；我们少用 30\% 的输入 token，花 1.35 美元。Codex 在 GPT-6.2 Astra、max 强度下得分 63.6\%，
+每次尝试约 5.04 美元。维护者自己的 4.1 榜单在 66 道题上各跑五次，列出 Codex + GPT-6.2 Sol（max）为 61.5\%，Codex +
+GPT-6.2 Astra（max）为 62.1\% \citep{tbench2026board}。两个榜单的头部都是 Claude、Gemini 和 Kimi 的智能体，以及一个多模型
+智能体：GitHub Copilot 的 Copilot Fusion（在维护者榜单上为 71.2\%）。
+
+\begin{table}[t]
+\centering
+\small
+\caption{每次 Terminal-Bench~4.1 尝试的 token 与公开标价成本。我们这一行是实测值；Codex 各行由 AA 给出的每次尝试
+Terminal-Bench token 数和按智能体汇总的缓存命中率（在其全部基准上统计）按 OpenAI 公开标价计算（GPT-6.2 Sol：
+每百万未命中输入、命中输入和输出 token 分别为 2、0.10 和 10 美元；GPT-6.2 Astra：8、0.40 和 40 美元）。}
+\label{tab:cost}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+智能体与模型（强度） & 66 道题得分 & 输入 & 命中缓存 & 输出 & 成本 \\
+\midrule
+\textbf{The One} + GPT-6.2 Sol (max) & 58.1\% & 3.16M & 90\% & 45.2k & \$1.35 \\
+Codex + GPT-6.2 Sol (max) & 58.1\% & 4.48M & 95\% & 51.4k & $\approx$\$1.42 \\
+Codex + GPT-6.2 Astra (max) & 63.6\% & 4.06M & 95\% & 50.0k & $\approx$\$5.04 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\para{此前在 Terminal-Bench~4.0 上}在同样的划分下，该配置用 GPT-6.1 Sol 得分约为 63 道中的 38 道，用 GPT-6.2 Sol 约为
+39 道；榜单上公开的试验中，Codex 0.159 + GPT-6.1 Sol 为 36.4，Claude Code 2.1.284 + Claude Opus 5.5 为 39.8。在未读的
+一半上，我们的 GPT-6.1 配置比 Codex 高 $+1.23$（六次运行的 95\% 区间为 $-0.30$ 到 $+2.77$）。Claude Code 在可读一半上的
+领先，来自 7 道开放解读型题，它在这些题上 35 次通过 34 次。按公开标价，我们每次试验在未读题上花 1.37 美元，Codex
+1.51 美元，Claude Code 11.39 美元。第一次完整的基线（10 月 31 日，当时上线的团队、中等强度、在 Mac 上）通过了 63 道中的
+29 道。
+
+\para{SWE-Atlas-QnA}在 124 道题的问答集上 \citep{raghavendra2026sweatlas}（10 月 29 日，GPT-6.1 Sol、中等强度，当时的团队），
+AA 的评分细则评分器判定满足 58\%（已评分的 120 道中 70 道），Scale 的评分细则评分器为 52\%（120 道中 62 道）；每题用时
+中位数 9.5 分钟、成本 0.42 美元；当时 AA 列出 Codex + GPT-6.1 Sol（max）为 60\%。在 101 条未满足的评分项中，有 44 条要求
+的是运行软件得到的证据。一个问题检查者（$+5$，预先登记的门槛是 $+6$，成本 1.45 倍）和一个高强度领队（$-2$，成本
+1.57 倍）都没有保留。
+
+\para{奖励投机扫描}AA 的 4.1 审查会阅读每次通过的尝试，把查找答案、修改测试和访问参考解的尝试记为 0 分
+\citep{aa2026coding}。我们的扫描器检查每次尝试的轨迹：是否有提到该基准、某道题或其上游来源的网络调用，以及是否读取、
+列出或写入评分路径（测试、参考解、验证器日志、奖励文件）。它在所有尝试中都没有发现这样的网络调用，也没有发现对评分
+路径的读取、列出或写入。在留出一侧，某道题的两次通过的尝试写入的文件内容提到了验证器的日志目录；这些轨迹属于留出集，
+因此我们没有做判断。
+
+\para{RQ4 的回答}在一个固定的前沿模型上，框架能追上服务商自家的智能体，并在 token 上更省，但还没有超过它。

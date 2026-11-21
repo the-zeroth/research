@@ -1,0 +1,112 @@
+\section{System}
+\label{sec:system}
+
+The One runs teams of language-model agents on a person's computer or on a Linux server. The
+desktop application and the headless server, \code{the-one-server}, share one backend; every
+experiment in this paper ran the server \citep{zeroth2026server}.
+
+\para{Agents with a life loop} An agent is a durable record in SQLite, not a process. Its state is
+committed before anything acts on it, and a woken agent continues from that record, so a crash or
+restart loses no decided work. A turn ends only through a lifecycle tool (deliver, hand back,
+wait); a model reply without one continues the loop, and errors are retried rather than ending the
+run.
+
+\para{Teams as graphs} A team is a YAML definition: agents with roles, prompts, tools and model
+bindings, wired as a graph of who may hand work to whom. A lead can open a subgraph (a clone of
+itself or a helper team), hand work to another node, or ask the person. The configuration we kept,
+\emph{team 7.0}, is a single lead that works directly and delegates only when asked; the earlier
+shipped teams (6.0 to 6.6) added checker nodes and rules, described in \cref{sec:structure}.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  font=\small,
+  node distance=7mm and 14mm,
+  box/.style={draw=ink!70, rounded corners=2pt, align=center, inner sep=3pt,
+              minimum height=11.5mm, text width=24mm, fill=white},
+  ext/.style={box, fill=boxfill},
+  arr/.style={-{Stealth[length=2.1mm]}, semithick, draw=ink},
+  darr/.style={{Stealth[length=2.1mm]}-{Stealth[length=2.1mm]}, semithick, draw=ink},
+  lab/.style={font=\scriptsize, text=ink!85, align=center, inner sep=1.5pt}
+]
+  \node[ext] (harbor) {\textbf{Harbor}\\{\scriptsize one container}\\{\scriptsize per attempt}};
+  \node[box, right=of harbor] (install) {installs the\\published server};
+  \node[box, right=of install] (run) {\code{the-one-server}\\\code{run}\\{\scriptsize instruction on stdin}};
+  \node[box, below=of run] (lead) {\textbf{lead agent}\\{\scriptsize team 7.0}};
+  \node[box] (folder) at (install |- lead) {task folder\\{\scriptsize shell, files}};
+  \node[ext, right=of lead] (model) {\textbf{model API}\\{\scriptsize GPT-6.2 Sol, max}};
+  \node[box, below=of lead] (out) {\code{run.json},\\ATIF trajectories};
+  \node[box] (verify) at (install |- out) {verifier\\{\scriptsize hidden tests}};
+  \node[ext] (reward) at (harbor |- out) {\textbf{reward}\\{\scriptsize 0 or 1}};
+
+  \draw[arr] (harbor) -- (install);
+  \draw[arr] (install) -- (run);
+  \draw[arr] (run) -- (lead);
+  \draw[darr] (lead) -- node[lab, above] {model\\calls} (model);
+  \draw[darr] (lead) -- node[lab, above] {tool\\calls} (folder);
+  \draw[arr] (lead) -- node[lab, right, align=left, xshift=1.5pt] {delivers or\\times out} (out);
+  \draw[arr] (out) -- node[lab, above] {then} (verify);
+  \draw[arr] (verify) -- (reward);
+
+  \begin{scope}[on background layer]
+    \node[draw=ruleGray, dashed, rounded corners=4pt, inner sep=3.2mm,
+          fit=(install) (run) (lead) (folder) (out) (verify)] (ctr) {};
+  \end{scope}
+  \node[lab, anchor=south west] at (ctr.north west) {task container};
+\end{tikzpicture}
+\caption{One Terminal-Bench attempt through the Harbor adapter, as run for the final evaluation.
+In team 7.0 the lead does the work itself and opens helpers only when asked; every other box is the
+same for any agent run through Harbor. The agent's own record (\code{run.json}) holds the outcome,
+token usage and list-price cost; the reward comes only from the verifier.}
+\label{fig:flow}
+\end{figure}
+
+\para{Context epochs} A model request is a stable base (instructions, skills, project notes), an
+append-only log, and a short tail (\cref{fig:epochs}). New context is appended where it appears
+and then stays put, so the provider's prompt cache keeps hitting. The base is re-rendered only at
+named boundaries: a change of model or tools, a new summary, or more than 40k tokens of drift. The
+earlier (``classic'') compiler re-rendered the instructions on every cycle.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[font=\small, x=1mm, y=1mm]
+  % classic layout
+  \node[anchor=east, align=right] at (-2,14) {classic\\[-2pt]{\scriptsize each cycle}};
+  \fill[oursLight!70] (0,10) rectangle (38,18);
+  \node at (19,14) {instructions, re-rendered};
+  \fill[gray!16] (38,10) rectangle (96,18);
+  \node at (67,14) {history};
+  \fill[gray!34] (96,10) rectangle (112,18);
+  \node at (104,14) {tail};
+  \draw[line width=1.8pt, ours] (0,7.5) -- (5,7.5);
+  \node[anchor=west, font=\scriptsize, text=ours!85!black] at (6.5,7.4)
+    {cache often breaks inside the system part (30--40\% of requests)};
+  % epoch layout
+  \node[anchor=east, align=right] at (-2,-6) {epochs};
+  \fill[gray!30] (0,-10) rectangle (38,-2);
+  \node at (19,-6) {stable base};
+  \fill[gray!16] (38,-10) rectangle (96,-2);
+  \node at (67,-6) {append-only log};
+  \fill[gray!34] (96,-10) rectangle (112,-2);
+  \node at (104,-6) {tail};
+  \draw[line width=1.8pt, ink!75] (0,-12.5) -- (96,-12.5);
+  \node[anchor=north, font=\scriptsize] at (48,-13.5)
+    {cached prefix: 89--94\% of prompt tokens read from cache (paired run, 20 tasks)};
+\end{tikzpicture}
+\caption{Request layout under the classic compiler and under context epochs. Epochs keep the base
+fixed between named boundaries (model or tool change, new summary, more than 40k tokens of drift)
+and only append, so everything before the tail stays a cache hit.}
+\label{fig:epochs}
+\end{figure}
+
+\para{Summaries} When a history grows long, a summarizer (``meditation'') replaces it with a
+compact summary. The working assignment, its amendments and the newest report are carried
+verbatim, because summaries otherwise kept only about a third of rule sentences
+(\cref{sec:context}).
+
+\para{Headless runs and the Harbor adapter} \code{the-one-server run} takes a task on standard
+input, runs the team in the task's folder with nobody to answer its questions, and writes
+\code{run.json} (outcome, usage, list-price cost, changed files) and an ATIF trajectory for every
+agent. A Harbor installed agent installs the published server in each task container and calls
+\code{run} (\cref{fig:flow}). The adapter is public \citep{zhang2026adapter}; the command that
+reproduces the final run is in \cref{app:repro}.

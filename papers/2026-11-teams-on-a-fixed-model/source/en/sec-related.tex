@@ -1,0 +1,59 @@
+\section{Related Work}
+\label{sec:related}
+
+\para{Benchmarks and leaderboards for coding agents} SWE-bench made repository issue resolution the
+standard test of coding agents \citep{jimenez2024swebench}. Terminal-Bench evaluates agents on hard
+tasks in command-line environments, each with an instruction, a container image, tests and an
+oracle solution \citep{merrill2026terminalbench}; it runs through Harbor, which provisions task
+containers, installs agents and records trajectories in a common format \citep{harbor2026}. SWE
+Atlas adds question answering about real codebases, graded by expert rubrics
+\citep{raghavendra2026sweatlas}. Leaderboards now rank agent and model pairs: the Terminal-Bench
+board lists maintainer-run trials \citep{tbench2026board}, the Artificial Analysis index runs
+several benchmarks under one protocol and, for Terminal-Bench~4.1, audits passing attempts for
+answer lookups and test edits \citep{aa2026coding}, and HAL standardizes the harness across
+benchmarks and reports cost beside accuracy \citep{kapoor2026hal}. \citet{kapoor2024agents} argued
+that agent evaluations should control for cost and keep held-out tasks; we follow both rules.
+
+\para{Agent harnesses} ReAct interleaves reasoning with tool calls \citep{yao2023react}; SWE-agent
+showed that the interface between agent and computer matters as much as the prompt
+\citep{yang2024sweagent}; Agentless showed that a fixed pipeline can match agentic loops on
+issue resolution \citep{xia2024agentless}. The vendors' own agents, Codex CLI
+\citep{openai2025codex} and Claude Code \citep{anthropic2025claudecode}, are single-agent loops
+with optional helpers. Guidance from practitioners favours the simplest structure that works
+\citep{schluntz2024effective}. Our final configuration is such a loop; what we add is a controlled
+comparison against the team structures we built, on a fixed model.
+
+\para{Multi-agent systems} AutoGen, MetaGPT and ChatDev organize agents into conversations or
+software-company roles \citep{wu2024autogen,hong2024metagpt,qian2024chatdev}; multi-agent debate
+improves factuality and reasoning on short-answer tasks \citep{du2024debate}; sampling and voting
+scale with the number of agents \citep{li2024moreagents}. \citet{cemri2025mast} built a taxonomy of
+multi-agent failures from execution traces, grouped under specification, inter-agent misalignment
+and task verification. Practitioners disagree on when teams pay: \citet{yan2025dontbuild} argues
+that dispersed context makes multi-agent decisions fragile, while \citet{anthropic2025multiagent}
+reports that a lead with parallel subagents wins on broad research tasks whose material exceeds
+one context. Our results sit between them: on tasks one context can hold, teams of the same model
+added cost but not accuracy.
+
+\para{Verification, self-correction and selection} Self-consistency votes over sampled reasoning
+paths \citep{wang2023selfconsistency}; Reflexion and Self-Refine feed critiques back into the next
+attempt \citep{shinn2023reflexion,madaan2023selfrefine}; CodeT selects programs with generated
+tests \citep{chen2023codet}; repeated sampling raises coverage when a verifier can pick the right
+sample \citep{brown2024monkeys,snell2025scaling}. \citet{huang2024cannot} found that models cannot
+reliably correct their own reasoning without external feedback, and LLM judges show position and
+self-preference biases \citep{zheng2023judge}. Our readers, jurors, choosers and checkers are
+instances of these ideas inside an agent harness; they failed for the reason
+\citeauthor{huang2024cannot} give, because a second copy of the model has no feedback the first
+lacked.
+
+\para{Context and caching} Models use long contexts unevenly \citep{liu2024lost}, and MemGPT pages
+memory in and out of a bounded context \citep{packer2023memgpt}. Providers now cache prompt
+prefixes and bill cached tokens at a discount \citep{openai2024caching}, which makes the
+stability of a prompt's prefix a cost variable. Our context epochs are designed around that
+variable.
+
+\para{Evaluation methodology} \citet{miller2024errorbars} argues for error bars and paired
+comparisons in model evaluations. Reusing one held-out set for many decisions overfits it
+\citep{dwork2015reusable}, and results tuned on one test set can drop on a fresh one
+\citep{recht2019imagenet}; registering analyses before seeing data limits the garden of
+analytic choices \citep{nosek2018prereg}. Coding agents also exploit their graders
+\citep{metr2025rewardhacking}, which is why AA audits passing attempts and why we scan ours.

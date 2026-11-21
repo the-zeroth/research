@@ -1,0 +1,46 @@
+\section{Working with a Person}
+\label{sec:person}
+
+Benchmarks give the agent a complete task once; a person corrects it, comes back later, and expects
+it to remember. Four product benches measured that side (\cref{tab:benches}). Their results point
+the same way as the coding work: what travels is written down where the next agent will read it,
+not held in a memory tool.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{Benches of the product's work with a person. Scripted people and groups stand in for real
+ones; ``before'' and ``after'' are the product before and after the change in the last column.}
+\label{tab:benches}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{22mm} >{\raggedright\arraybackslash}p{38mm} L >{\raggedright\arraybackslash}p{24mm}@{}}
+\toprule
+Bench & Setup & Result & What shipped \\
+\midrule
+Acceptance habits (17--18 Nov) & A scripted person with four code habits that no task states; six
+  Python tasks per sequence; corrections given along the way & Before: a corrected habit was broken
+  again in 0 of 51 tasks through the assistant (it pasted the person's words into every brief) and
+  in 51 of 51 sent straight to the team. On held-out people: the team broke corrected habits 14/96,
+  the assistant 0/48; one-off requests wrongly kept as rules 0/108 and 3/81 & Standing-rule files
+  and a tool to keep them \\
+Memory lessons (18 Nov) & 29 sequences in which a later task needs a lesson from an earlier one &
+  Fresh runs 0/6, told 4/4, team 6/8, team with memory 5/8, assistant 8/8; teams passed exactly
+  when they read the earlier task's folder (11/11 against 0/5); 12/12 after a compaction & No
+  memory rewrite; lessons travel in files and briefs \\
+Follow-through (25 Oct) & Scripted groups hand the main assistant one of 7 backtest variants; 21
+  runs per arm & Follow-through 18/21 before and after; rubric score 0.49 before, 0.88 after &
+  Assistant hand-back text \\
+Decision models (25--26 Oct) & Blind readers judge whether a group exposed a scripted decision
+  model & With an experiment-design skill 24/24 against 16/24 ($p = 0.004$), at 0.88 times the
+  tokens & Experiment-design skill \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Two results changed the design. The assistant kept every habit because it rewrote the person's
+words into each brief; teams kept them only when the words reached a file they read. And no agent
+in 104 sequenced tasks called the memory tool on its own, so standing rules now live in files the
+next agent reads, and lessons are left to the work's own files and the assistant's briefs.
+
+One line of work found nothing to ship. Eight rounds of an ``evolution lab'' (\$59.55 in model
+cost) chased a miss that came mostly from our own task summary: with the summary fixed, the shipped
+team solved the task 4 of 4 times against 3 of 21 before.

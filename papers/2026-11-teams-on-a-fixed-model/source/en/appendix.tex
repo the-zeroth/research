@@ -1,0 +1,124 @@
+\section{Experiment Index}
+\label{app:index}
+
+Every experiment named in this paper, newest first. Held-out results are sums; no held-out task is
+named. ``Readable'' and ``unread'' refer to the V8 split of \cref{sec:method}.
+
+{\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{14mm} >{\raggedright\arraybackslash}p{9mm}
+  >{\raggedright\arraybackslash}p{43mm} >{\raggedright\arraybackslash}p{49mm}
+  >{\raggedright\arraybackslash}p{22mm}@{}}
+\toprule
+Date (2026) & Prog. & Experiment & Result & Decision \\
+\midrule
+\endfirsthead
+\toprule
+Date (2026) & Prog. & Experiment & Result & Decision \\
+\midrule
+\endhead
+\midrule
+\multicolumn{5}{r@{}}{\textit{continued on the next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+20 Nov & Final & Terminal-Bench~4.1, team 7.0 on GPT-6.2 Sol at max, 3 attempts & 60.9\% of 63, 58.1\% of
+  66; \$1.35 per attempt & Reported \\
+19 Nov & V8 & CI: a note after the first file write, lead only & Readable 21.0 against 21.0; cost 1.00
+  times & Closed \\
+18--19 Nov & V8 & O2: a check on the first delivery (GPT-6.2) & Readable split tasks $+5$; unread
+  $-2.0$ ($p = 0.28$); cost 1.88 times & Closed \\
+18 Nov & V8 & O1: a profile section written for GPT-6.2 & Readable 22.0 against 20.5, one draw;
+  calls unchanged & Not shipped \\
+18 Nov & Bench & Memory lessons, 29 sequences & Assistant 8/8; teams passed when they read the
+  earlier folder (11/11 against 0/5) & No memory rewrite \\
+17--18 Nov & Bench & Acceptance habits & Held-out: team broke habits 14/96, assistant 0/48; false
+  rules 0/108 and 3/81 & Shipped \\
+17--18 Nov & V8 & GPT-6.2 Sol against GPT-6.1 Sol & Unread 18.0 against 20.5 ($p = 0.15$); calls
+  31.4 against 46.9 & GPT-6.2 kept for the benchmark configuration \\
+15 Nov & V8 & G: a clean-room grader started by the lead & Targets 3/10 against 5/10; 6 of 10 ``all
+  passed'' verdicts were on failing trials & Closed \\
+14 Nov & V8 & UL-1: proactive delegation with Codex's protocol & 2 of 24 targets; two guard tasks
+  lost; cost 2 to 4 times & Closed; passive form shipped \\
+14 Nov & V8 & CXR: readers before the work & Unread pooled $-0.8$ ($\pm 0.7$) & Closed \\
+13--14 Nov & V8 & Lone lead at max (team 7.0) against the earlier lead at medium & Unread $+3.17$
+  (standard error 1.39); cost 2.0 times & Adopted \\
+13 Nov & V8 & E: Claude Opus as reader or chooser beside the GPT lead & Reader 0/8 with harm;
+  chooser 38/69 & Closed \\
+13 Nov & V8 & DJ: choose between two finished builds & Right on visible defects, wrong on judgment
+  points; jury 12 right, 11 wrong, 13 abstained & Closed \\
+6--8 Nov & V8 & Key-node replay; probe-first text & One decision 0 to 24/24; whole runs $-0.04$
+  ($\pm 0.85$) & Kept as a method \\
+4 Nov & V8 & L2b, the first held-out confirmation & 17/38 against 20/38 & Rejected; 8 held-out
+  tasks opened \\
+Nov & V8 & GO: answer a failure handed back early & One task 0/14 to 6/6 & Shipped \\
+Nov & V8 & HD: a check at the first delivery (GPT-6.1) & Unread $+1.54$ ($\pm 1.31$); cost 2.09
+  times & Not shipped \\
+31 Oct & V8 & E4, the first Terminal-Bench~4.0 baseline (Mac) & 29/63; \$1.48 and 23.5 minutes per
+  trial & Baseline \\
+29--31 Oct & QnA & SWE-Atlas-QnA full set; question checker; high effort & 70/120 met by AA's rubric;
+  checker $+5$ against a $+6$ gate; high effort $-2$ & Not kept \\
+25--26 Oct & Bench & Decision-model bench & With the skill 24/24 against 16/24 ($p = 0.004$) &
+  Shipped \\
+25 Oct & Bench & Follow-through of the main assistant & Rubric 0.49 to 0.88; follow-through 18/21 &
+  Shipped \\
+22--24 Oct & V1 & Evolution lab, 8 rounds & Nothing shipped; the miss came from our own task
+  summary & Closed \\
+19--20 Oct & V1 & Teams 6.4 to 6.6: combination tester, accessor rule, qualifier scope & Widening
+  sets at parity (16/28 against 16/28; 23/34 against 24/34; 23/34 against 25/34) & Shipped \\
+19 Oct & V1 & Cross-model screens and a Claude settler & Opus 4/4 against 0/4 on one task; Sonnet
+  6/10 against 2/10 & Not shipped \\
+19 Oct & V1 & GPT settler node & 20/40 against 21/40 pooled & Rejected \\
+18 Oct & V1 & Team 6.3: a settle step in the checker's hand-back & Targets 17/48 against 10/48 &
+  Shipped \\
+16 Oct & V1 & Context batches b96 to b102, one session across tasks, recall tests & Read guidance and
+  brief schemas adopted; lean results and session reuse dropped & \Cref{sec:context} \\
+15 Oct & V1 & Lean task board, read tools, fast tier, moving old results out & All neutral; moving
+  results out cost 1.14 times & Paging kept \\
+14 Oct & V1 & Where time goes & Lead model calls are about 90\% of active time & Speed work aimed
+  at lead turns \\
+11--12 Oct & V1 & Teams 6.0 to 6.2: acceptance, symptom and convention checkers & Held-out at parity
+  (5/9 against 5/9; 4/8 against 5/10; 6/7) & Shipped \\
+8--10 Oct & V1 & Structures 1 to 10: rules, ensemble, readers, checklists, architect & Design-set
+  wins, held-out losses (\cref{sec:discussion}) & Checker gate adopted \\
+5 Oct & V1 & Effort: medium against high & 28/30 against 29/30 at 38\% less cost; multi-bug 0/6
+  against 3/6 & Medium kept for V1 \\
+1--6 Oct & V1 & Hard public tasks and repository tasks & Single agent 90.4\% against team 96.2\% on
+  the 8 hardest & Suite expanded \\
+30 Sep & V1 & Append-only epochs against classic prompts & Cost 33 to 52\% lower; cache 89 to 94\%
+  against 76 to 81\% & Default on \\
+29 Sep & V1 & Delegation on bigger tasks & 36/36 solved; delegated runs 25\% faster at 2.46 times
+  the prompt tokens & Cache fixes; uncached $-39$\% \\
+28 Sep & V1 & Baseline; cache headers for the ChatGPT backend & 6/6 delivered; cache 0 to 97.8 to
+  99.6\% & Headers shipped \\
+\end{longtable}
+}
+
+\section{Reproducing the Terminal-Bench 4.1 Run}
+\label{app:repro}
+
+The dataset was Terminal-Bench~4.1 at AA's digest, downloaded with Harbor 0.26.0:
+\begin{center}
+\code{terminal-bench/terminal-bench@sha256:39d9f44b\ldots e27732}
+\end{center}
+With an OpenAI API key, the public adapter \citep{zhang2026adapter} runs it as follows:
+
+\begin{small}
+\begin{verbatim}
+git clone https://github.com/the-zeroth/the-one-harbor
+export OPENAI_API_KEY=...
+PYTHONPATH=the-one-harbor/scripts/harbor \
+  uvx --python 3.12 --from harbor==0.26.0 harbor run \
+  -p <dataset folder> -n 30 -k 3 \
+  -a the_one_server_agent:TheOneServer -m openai/gpt-6.2-sol --effort max \
+  --ak version=0.5.2 --ak run_timeout=465m
+\end{verbatim}
+\end{small}
+
+\code{--ak version} pins the server release, and \code{--ak run\_timeout} sets how long the team may
+work; the server's own default is 3 hours, which cuts long tasks short. Our run differed in three
+ways: it used the product's ChatGPT (Codex) sign-in through a credentials file instead of an API
+key, it ran as two jobs of 15 concurrent trials (readable and held-out tasks), and it left out the
+three GPU tasks. Harbor 0.24 has no \code{--effort} option; pass \code{--ak reasoning\_effort=max}
+instead.

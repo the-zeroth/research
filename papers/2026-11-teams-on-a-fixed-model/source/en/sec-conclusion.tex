@@ -1,0 +1,45 @@
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+
+On a fixed frontier model, a well-built harness reaches the vendor's own agent and makes it
+cheaper, but it does not yet beat it: we tie Codex on GPT-6.2 Sol at max effort on
+Terminal-Bench~4.1 while using about 30\% fewer input tokens.
+
+Three results carry the paper. Context engineering pays in cost, not in accuracy: append-only
+prompts cut cost by a third to a half, and later levers took off another 7 to 20\%. Structure pays
+only where the work splits: one strong owner beat every team on tasks one context can hold, and
+same-model second opinions confirmed the shared misreading instead of catching it. Judgment follows
+the model: notes, rules and profiles changed what the model did next but not what it chose, while
+facts and measurements put in front of it did move the choice.
+
+Widening the gap therefore needs levers of a different kind from the ones we closed:
+\begin{enumerate}[leftmargin=1.6em]
+  \item \textbf{Evidence, not advice.} Put measurements of the data and the executable consequences
+    of each open reading in front of the lead at the decision, the one channel that moved the
+    choice.
+  \item \textbf{Diversity that does not share the reading.} Same-model voters agreed on the wrong
+    reading. The top row of the maintainers' board is a multi-model agent (71.2\%), and GPT-6.2
+    Astra scores 5.5 points above GPT-6.2 Sol in Codex; a second GPT model at the reading or
+    choosing step is the obvious next test.
+  \item \textbf{More draws with a grounded chooser.} A perfect chooser over two draws would add
+    about 1.6 tasks of 30 on GPT-6.2. Choosers, GPT or Claude, were right on visible defects and
+    wrong on judgment points (5 of 28), so the chooser must rest on executed checks, not opinion.
+  \item \textbf{Comparable reports.} A GPU machine for all 66 tasks and five attempts per task
+    would match the maintainers' protocol, the bar for submitting to third-party leaderboards.
+\end{enumerate}
+
+\section*{Data and Code Availability}
+The Harbor adapter and the exact command that reproduces the final run are public
+\citep{zhang2026adapter} (\cref{app:repro}); the published server is installed as documented in
+\citep{zeroth2026server}. Per-attempt results of the Terminal-Bench~4.1 run (rewards, agent time,
+tokens and list-price cost) and the trajectories of the readable tasks are retained by the author.
+The trajectories of the 30 held-out tasks remain unread, to keep that set usable for later
+confirmation.
+
+\section*{Use of AI Assistance}
+The experiments were designed, run and analysed with the help of an AI coding assistant (Claude Code
+with Claude Opus 5.5), which also drafted this paper under the author's direction. The author is
+responsible for its content.
+
+\section*{Competing Interests}
+The author founded The Zeroth, which develops The One.

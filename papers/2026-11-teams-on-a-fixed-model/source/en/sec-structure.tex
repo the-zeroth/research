@@ -1,0 +1,86 @@
+\section{Team Structure and Runtime Interventions (RQ2)}
+\label{sec:structure}
+
+On tasks that one context can hold, one strong owner matched or beat every team we built, at a
+fraction of the cost. Extra agents won on the tasks they were designed on and tied or lost on tasks
+they were not, usually at two to five times the cost.
+
+\para{Small tasks are not delegated, big ones are} On the first suite (28 September) the default
+team never delegated, and a single agent was as good and slightly cheaper (10.9 against 12.1
+minutes, 1.24M against 1.41M tokens). On bigger multi-module tasks (29 September) the lead
+delegated in all six runs of two tasks and in none of the research tasks; all 36 runs were solved,
+so structure could only change time and cost.
+
+\para{Structures built for hard tasks did not transfer} From 8 October we built one structure a day
+for the hard tasks the shipped team missed (\cref{tab:structures}). Diagnoses of those misses found
+that each was a single wrong reading of an ambiguous or silent sentence in the request, made the
+same way in most runs, so votes and extra reviewers had little to work with. Reading rules on every
+node even made results worse out of sample, because the rules licensed the model to skip whatever
+the text did not state.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{Team structures built in V1 for hard tasks, each against its same-batch base (arm against
+base, runs passed). Design tasks are the tasks a structure was built for; held-out tasks were not
+used to build it.}
+\label{tab:structures}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{36mm} L L >{\raggedright\arraybackslash}p{19mm} >{\raggedright\arraybackslash}p{27mm}@{}}
+\toprule
+Structure & Design tasks & Held-out tasks & Cost per run & Decision \\
+\midrule
+Reading rules on every node & 9/15 against 4/15 & 2/10 against 4/10 & about \$1.00 against \$0.76 &
+  Rejected: the rules shrank the work \\
+Three builders and an evidence judge (ensemble) & 15/24 against 4/15; the first solves of one task &
+  3/10 against 8/20 & \$2.85 against \$0.53 & Rejected \\
+Three readers and a reconciler & 4/10 against 4/21 & 1/9 against 11/28 & \$4.01 against \$1.31 &
+  Rejected \\
+Acceptance checker started beside the build & 3/5 against 2/15 (detail-heavy tasks) & 8/10 against
+  7/10 (fresh set) & \$2.03 against \$1.58 & Adopted as a gate, only for specification-style
+  requests \\
+Architect drawing a typed wiring diagram & 0/6; five exact ties & not run & not recorded &
+  Rejected \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\para{What V1 shipped} Single checkers that held at parity on held-out tasks did ship, one gate at
+a time: acceptance (team 6.0), symptom for bug reports (6.1), repository conventions (6.2), a
+settle step in the checker's hand-back (6.3; 17/48 against 10/48 on its targets) and a combination
+tester (6.4). Every heavier variant failed its held-out check, including a two-checker version
+(3/9 against 5/9) and a settler node (20/40 against 21/40 pooled). A census of 61 misses in 120
+runs on 18 October found 33 misreadings of the request, 16 self-checks gentler than the hidden
+tests, and 12 gaps in domain knowledge.
+
+\para{The lone lead won on Terminal-Bench too} In V8, team 7.0 (a single lead that works directly
+and delegates only when asked) at max effort beat the earlier lead at medium effort on the unread
+30 by $+3.17$ (standard error 1.39), with 10 tasks up, 3 down and no always-passed task lost, at
+twice the cost. This compares configurations: the lead's profile and its effort changed together,
+and that pair is what we ship (effort alone is discussed in \cref{sec:judgment}). Proactive
+delegation through Codex's own collaboration protocol, in which the lead spawns helper agents
+without being asked, reached 2 of 24 target trials, lost two guard tasks and cost two to four
+times as much; its passive form, delegation only on request, is the one in team 7.0. A checking
+team tied the lone lead at twice the cost.
+
+\para{Same-model second opinions did not help out of sample} Readers that studied the task before
+the work scored $-0.8$ ($\pm 0.7$) pooled on the unread set. Choosers between two finished builds,
+GPT or Claude, were right about 55\% of the time: almost always when the failing build had a
+visible defect (Claude Opus 22 of 23) and rarely on judgment points (5 of 28). A same-model jury
+over 36 pass/fail pairs was right on 12, wrong on 11 and abstained on 13. A
+clean-room grader started by the lead passed 3 of 10 target trials against 5 of 10 for the base,
+and 6 of the 10 ``all passed'' verdicts it gave were on failing trials. A gated reasoning checker
+tied at 12/20.
+
+\para{The harness helps when it answers a state passing runs never show} In headless runs nobody
+answers a hand-back. When a run handed back a failure early, the harness answered ``decide
+yourself, keep going'' (GO); one task went from 0 of 14 to 6 of 6, and GO shipped. Checks
+triggered on every first delivery did not ship. HD on GPT-6.1 gained $+1.54$ ($\pm 1.31$) on the
+unread set at 2.09 times the cost, below its pre-registered bar of $+2.0$. O2, the same idea worded
+for GPT-6.2, passed 22/28 against 17/28 on the readable tasks that split across draws, where its
+second round found real defects, but lost 2.0 on the unread set (15.5 against 17.5, $p = 0.28$),
+reworking delivered work in 50 of 60 trials. A global trigger buys its gains inside one failure
+family and pays for them on tasks that were already right.
+
+\para{Answer to RQ2} On single-context tasks, teams of the same model added cost but not accuracy.
+What helped was narrow: a single gate for specification-style requests, and a runtime answer to a
+state (an early failure hand-back) that passing runs never reach.

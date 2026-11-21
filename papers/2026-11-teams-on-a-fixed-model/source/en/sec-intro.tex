@@ -1,0 +1,62 @@
+\section{Introduction}
+\label{sec:intro}
+
+Coding-agent leaderboards now rank pairs of an agent and a model rather than models alone
+\citep{tbench2026board,aa2026coding,kapoor2026hal}, and many products wrap the same few frontier
+models. For the people who build the wrapper, the harness, meaning the prompts, tools, context
+management, team structure and runtime checks around the model, the practical question is what that
+harness adds once the model is fixed. The published answers disagree. Multi-agent frameworks report
+gains from role-playing teams, debate and voting
+\citep{wu2024autogen,hong2024metagpt,qian2024chatdev,du2024debate,li2024moreagents}; a failure
+analysis of such systems finds that their gains over a single agent are often small
+\citep{cemri2025mast}; and practitioners argue both for a single agent with shared context
+\citep{yan2025dontbuild} and for a lead that fans work out to parallel helpers
+\citep{anthropic2025multiagent}.
+
+We build The One, a product that runs teams of language-model agents on a person's computer or on
+a Linux server. Between 28 September and 20 November 2026 we ran three experimental programs on it
+to answer four questions:
+\begin{enumerate}[label=\textbf{RQ\arabic*},leftmargin=3.2em]
+  \item What does context management buy in cost, latency and accuracy?
+  \item Do team structures beat one capable agent, and on which tasks?
+  \item Can the harness steer the model's judgment at the points where runs fail?
+  \item Where does the resulting configuration stand against the model vendor's own agent?
+\end{enumerate}
+
+\para{Contributions} The contributions are a record and a method more than a system.
+\begin{itemize}[leftmargin=1.4em]
+  \item \emph{A record of controlled experiments.} Over 120 batches on our own task suite (V1),
+    315 Harbor jobs with 6,223 graded Terminal-Bench~4.0 trials (V8), and a Terminal-Bench~4.1 run
+    under the Artificial Analysis (AA) protocol, with the rule, the branches and our own forecast
+    written down before every batch ran. An index of every experiment is in \cref{app:index}.
+  \item \emph{A held-out discipline with measured resolution.} Thirty Terminal-Bench tasks were never
+    opened; every arm ran beside its base in the same hours; differences were tested by permutation
+    within tasks; zeros were re-graded on an idle machine. The discipline caught most of our own
+    false wins, and we state the smallest effect it can see (\cref{sec:method}).
+  \item \emph{Measured effects, mostly negative.} The effect of context levers on cost and latency
+    (\cref{sec:context}); a failure pattern shared by team structures and same-model second opinions
+    (\cref{sec:structure}); and a rule for steering the model (a note changes the process, a fact
+    changes the choice; \cref{sec:judgment}).
+  \item \emph{A public adapter.} The Harbor adapter and the exact run command are public
+    \citep{zhang2026adapter}; the configuration ties the vendor's agent on Terminal-Bench~4.1 with
+    fewer input tokens (\cref{sec:tb41}).
+\end{itemize}
+
+\para{Summary of findings} Append-only prompts cut cost per run by a third to a half at equal
+scores, and later context levers took off another 7 to 20\%; none of them moved accuracy. On tasks
+that one context can hold, a single strong owner matched or beat every team we built, usually at a
+fraction of the cost, because the failures that remain are single misreadings that every copy of
+the same model shares. Text that advised the model changed what it did next but not what it chose;
+facts and measurements placed in front of it did change the choice. The model itself set the
+ceiling: moving from GPT-6.1 Sol to GPT-6.2 Sol changed which tasks passed more than any harness
+lever did.
+
+\para{Scope} We do not claim a new model, a result for tasks too big for one context, or a
+leaderboard position. All runs were self-run on one machine, mostly through a subscription
+sign-in, and costs are reconstructed at API list prices (\cref{sec:threats}).
+
+The rest of the paper is organized as follows. \Cref{sec:related} reviews related work,
+\cref{sec:system} describes the system and \cref{sec:method} the evaluation method.
+\Cref{sec:context,sec:structure,sec:judgment,sec:person,sec:tb41} report results,
+\cref{sec:discussion} explains why most levers failed, \cref{sec:threats} lists threats to
+validity, and \cref{sec:conclusion} concludes.

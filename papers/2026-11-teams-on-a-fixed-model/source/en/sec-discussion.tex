@@ -1,0 +1,98 @@
+\section{Why Most Levers Failed}
+\label{sec:discussion}
+
+Most of what we tried did not survive held-out tasks (\cref{fig:transfer}). Every structure built
+for hard tasks lost its lead on held-out tasks; the acceptance checker alone stayed ahead, and it
+shipped only as a gate for specification-style requests. The failures share five causes. We
+report them because each cost weeks and would cost others the same.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.50\textwidth, height=5.4cm,
+  xmin=-35, xmax=55, ymin=0.4, ymax=5.6, y dir=reverse,
+  xtick={-20,0,20,40}, minor xtick={-30,-10,10,30,50}, xminorgrids,
+  minor grid style={ruleGray!25},
+  ytick={1,...,5},
+  yticklabels={
+    {Reading rules on every node (V1)},
+    {Three builders and a judge (V1)},
+    {Three readers and a reconciler (V1)},
+    {Acceptance checker (V1)},
+    {Check at first delivery, O2 (V8)}},
+  yticklabel style={font=\footnotesize},
+  tick label style={font=\footnotesize},
+  xlabel={Arm minus same-batch base (percentage points)},
+  xlabel style={font=\footnotesize},
+  xmajorgrids, grid style={ruleGray!45},
+  axis x line*=bottom, axis y line*=left,
+  y axis line style={draw=none}, ytick style={draw=none},
+  legend style={font=\footnotesize, draw=none, fill=none, at={(0.5,1.03)}, anchor=south,
+    legend columns=2, /tikz/every even column/.append style={column sep=8pt}},
+  clip=false,
+]
+  \draw[ink!55, dashed] (axis cs:0,0.4) -- (axis cs:0,5.6);
+  \addplot[draw=ruleGray, line width=1.3pt, forget plot] coordinates {(33.3,1) (-20.0,1)};
+  \addplot[draw=ruleGray, line width=1.3pt, forget plot] coordinates {(35.8,2) (-10.0,2)};
+  \addplot[draw=ruleGray, line width=1.3pt, forget plot] coordinates {(21.0,3) (-28.2,3)};
+  \addplot[draw=ruleGray, line width=1.3pt, forget plot] coordinates {(46.7,4) (10.0,4)};
+  \addplot[draw=ruleGray, line width=1.3pt, forget plot] coordinates {(17.9,5) (-6.7,5)};
+  \addplot[only marks, mark=o, mark size=2.6pt, thick, color=ink, fill=white,
+    mark options={fill=white}]
+    coordinates {(33.3,1) (35.8,2) (21.0,3) (46.7,4) (17.9,5)};
+  \addlegendentry{design tasks}
+  \addplot[only marks, mark=*, mark size=2.6pt, color=ours]
+    coordinates {(-20.0,1) (-10.0,2) (-28.2,3) (10.0,4) (-6.7,5)};
+  \addlegendentry{held-out tasks}
+\end{axis}
+\end{tikzpicture}
+\caption{Transfer from design tasks to held-out tasks. Each lever's gain over its same-batch base in
+pass rate, on the tasks it was designed on (hollow) and on held-out tasks (filled). The V1 rows
+come from small sets (5 to 28 runs a side, \cref{tab:structures}); the O2 row compares the readable
+tasks that split across draws (28 trials a side) with the unread 30 (two draws a side). Only the
+acceptance checker stayed ahead out of sample.}
+\label{fig:transfer}
+\end{figure}
+
+\begin{enumerate}[leftmargin=1.6em]
+  \item \textbf{Same-model redundancy adds little information.} The misses that remain are one
+    reading of an ambiguous sentence, made the same way in most draws. Readers, jurors, graders and
+    checkers from the same model share that reading, so they confirm it. This is the
+    self-correction limit of \citet{huang2024cannot} at the level of a team: without a new fact, a
+    second copy of the model has nothing the first lacked.
+  \item \textbf{Global triggers trade one failure family for another.} A check fired on every
+    delivery fixes the tasks it was designed on and reworks tasks that were already right. O2 lost
+    2.0 on the unread set and another global check lost 1.5, while the real-time note gained 1.0
+    on the seven tasks it aimed at and lost 1.0 on the other 26.
+  \item \textbf{Advice does not move judgment.} Profile text, rules and real-time notes changed
+    what the model did next, not what it chose. Reading rules even shrank the work by licensing the
+    model to skip what the text did not state.
+  \item \textbf{Token cuts that break the cache cost more than they save.} Moving old tool results
+    out at 60k tokens saved about 10k tokens a pass but raised uncached tokens by 29\% and cost by
+    14\%.
+  \item \textbf{Design-set wins are in-sample.} Levers were designed from readable trajectories, so
+    readable screens are in-sample and overstate them; this is the adaptive overfitting that an
+    unread holdout guards against \citep{dwork2015reusable}. One lever passed a task 3 of 3 times on
+    the screen and 1 of 3 on the next draw.
+\end{enumerate}
+
+\para{Our own forecasts were part of the problem} We wrote a forecast before every batch. For
+levers designed on readable tasks the forecasts were often wrong in sign: O2 was forecast at
+$+1.5$ on the unread set and measured $-2.0$, the real-time note at $+1.0$ and measured $0.0$.
+Registration did not make the forecasts better, but it made the misses visible.
+
+\para{Implications for harness builders} Five practices follow from these results, each tied to a
+measurement above.
+\begin{itemize}[leftmargin=1.4em]
+  \item Make the prompt prefix stable before cutting tokens, and measure cache hits per request; a
+    cut that breaks the cache costs more than it saves (\cref{sec:context}).
+  \item For latency, count the lead's turns, not the size of its prompts (\cref{sec:context}).
+  \item Before adding agents of the same model, measure how often a task splits across draws. When
+    misses are the same reading in every draw, extra copies add cost, not information
+    (\cref{sec:structure,sec:judgment}).
+  \item Trigger runtime help on states that passing runs never show, such as an early failure
+    hand-back, rather than on every delivery (\cref{sec:structure}).
+  \item Keep a held-out set unread, run every arm beside its base in the same hours, and state the
+    resolution of the instrument before reading a result (\cref{sec:method}).
+\end{itemize}

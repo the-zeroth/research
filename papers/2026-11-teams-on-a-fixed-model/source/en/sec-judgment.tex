@@ -1,0 +1,105 @@
+\section{The Model and Its Judgment (RQ3)}
+\label{sec:judgment}
+
+The model set the ceiling. Moving from GPT-6.1 Sol to GPT-6.2 Sol changed which tasks passed more
+than any harness lever did, and no text we wrote moved the model's choice at a decision point; only
+facts put in front of it did.
+
+\para{Most failures are confident deliveries} On the readable tasks, 213 of 227 base failures were
+deliveries the model believed done. Each rested on a reading of the request that the model settled
+in its first minutes and then verified against itself, so its own checks passed. Side by side with
+Codex's public trajectories on the same tasks, Codex settled a stronger design after one long think
+and then hardened it, while our runs stopped once their own checks passed. The whole readable gap
+to Codex sat in eight tasks that Codex passed reliably (6.75 against 2.1 expected passes), with no
+common mechanism.
+
+\subsection{What moved the choice}
+
+We captured the request at a decision point of a real trial and replayed it many times with one
+text changed (key-node replay). The replay matched the original prompt exactly, was 98\% cached and
+took about 13 seconds a sample. Three kinds of input moved the choice:
+\begin{itemize}[leftmargin=1.4em]
+  \item \emph{A fact or an order in a user turn at the moment it applies.} A line naming a defect as
+    settled, added to the task, made the next move write the unbiased estimator in 23 of 24
+    replays. The GO answer of \cref{sec:structure} is of this kind.
+  \item \emph{Withholding a misleading cue.} In a planted-choice probe the model kept the option the
+    code documents in 16 of 16 replays when told which option that was, and picked the right one in
+    16 of 16 when not told.
+  \item \emph{Measurements of the data put in front of it.} On one task this took both GPT models
+    from 0 of 8 to 8 of 8.
+\end{itemize}
+
+\subsection{What did not}
+
+\begin{itemize}[leftmargin=1.4em]
+  \item \emph{Advice in the instructions or the profile}, in five wordings. ``A comment is not
+    evidence'' moved 0 of 24 decisions, and a profile section written for GPT-6.2 changed no
+    measured behaviour.
+  \item \emph{Pre-steps by the same model} that list and decide the open points before the work.
+    They reached one task only.
+  \item \emph{A different model beside the lead as a general reader or chooser.} Claude Opus as a
+    reader went 0 of 8 and did harm; as a chooser between two builds its accuracy was 0.55. Another
+    model helped only where it knew something GPT did not: in V1 an Opus settler fixed one
+    statistics task 4 of 4 times against 0 of 4.
+  \item \emph{A note delivered in real time.} An adapter hook placed one general note right after
+    the result of the run's first file write, at the same place in every later request, so the
+    prompt cache was kept. As a user turn, the note made the next move test the decisive point in
+    8 of 8 and 5 to 6 of 8 replays at two captured decisions; as a suffix of the tool result it did
+    so in 5 to 6 of 8 and 0 of 8, and without the note in 0 of 4. In whole runs, however, the
+    readable 33 scored 21.0 against 21.0 at the same cost: $+1.0$ on the seven open-reading tasks
+    it aimed at and $-1.0$ on the other 26. On one task the model ran the requested check, printed
+    the score of the form the graders expected (3.239 against its own 3.240), and kept its own
+    form.
+\end{itemize}
+
+Replays at a captured decision overstate whole runs: a probe-first text took one decision from 0
+to 24 of 24 but moved whole runs by $-0.04$ ($\pm 0.85$). A note at the right moment changes the
+process, not the judgment, which follows the model's prior. We closed advice as a lever for GPT
+judgment on these tasks.
+
+\subsection{Model version and effort}
+
+\begin{table}[t]
+\centering
+\small
+\caption{GPT-6.1 Sol against GPT-6.2 Sol in team 7.0 at max effort on Terminal-Bench~4.0. $S$ is
+the sum of per-task mean rewards (\cref{eq:score}); ``best of $N$'' assumes a perfect chooser over
+$N$ draws.}
+\label{tab:models}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Measure & GPT-6.1 Sol & GPT-6.2 Sol \\
+\midrule
+Readable 33, $S$ & about 18.8 & about 21 \\
+Unread 30, same batch, $S$ & 20.5 & 18.0 (difference $-2.5$, $p = 0.15$) \\
+Unread 30, mean of one draw & 19.25 (8 draws) & 17.75 (4 draws) \\
+Unread 30, best of 2 / best of 4 & 21.04 / 21.77 & 19.33 / 20.0 \\
+Unread tasks that split across draws & 9 of 30 over 8 draws & 6 of 30 over 4 draws \\
+Model calls per trial & 46.9 & 31.4 \\
+Agent minutes per trial, unread & 33.7 & 28.8 \\
+List-price cost per trial, unread & \$1.16 & \$1.15 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\para{GPT-6.1 Sol to GPT-6.2 Sol} \Cref{tab:models} compares the two models in the same
+configuration. GPT-6.2 made a third fewer model calls and took 15\% fewer minutes at the same
+list-price cost per trial. It passes open-reading tasks that GPT-6.1 rarely did (one task 5 of 5
+against 0 of 11) and never passes some that GPT-6.1 sometimes did (0 of 8 against 17 of 50 and 16
+of 50). It is also more deterministic: its walls are single method choices made the same way in
+every draw, which is why sampling more draws helps it less. We kept GPT-6.2 for the final
+configuration, since the unread difference was within noise and the agents we compare against run
+GPT-6.2.
+
+\para{Effort} In V1, medium effort matched high on ten bug tasks (28/30 against 29/30) at 38\%
+less cost, but lost on the multi-bug tasks (0/6 against 3/6, $p \approx 0.06$). On a screen of
+readable Terminal-Bench tasks, the earlier lead passed 19 of 38 trials at max, 6 of 21 at medium
+and 3 of 15 at high, so high is not a cheap middle. With the lone lead, running at max for the
+first 12 calls and at medium afterwards passed 5 of 15 against 11 of 15 at max throughout, at the
+same cost. Max effort became the shipped depth for
+coding, with the configuration comparison of \cref{sec:structure} as its held-out check.
+
+\para{Answer to RQ3} The harness can change what the model does next (run a check, keep going) but
+not what it concludes at a choice; only facts and measurements placed in front of it changed the
+choice. The remaining failures are confident single readings, so the levers that can move them must
+supply evidence, not advice.

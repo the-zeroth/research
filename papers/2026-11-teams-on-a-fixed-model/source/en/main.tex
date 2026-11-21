@@ -1,0 +1,129 @@
+% Teams on a Fixed Model: Two Months of Harness Experiments with The One
+% Build: tectonic -X compile main.tex   (XeLaTeX engine; BibTeX runs automatically)
+\documentclass[10pt]{article}
+
+\usepackage[a4paper,textwidth=152mm,textheight=232mm,headsep=8mm,footskip=11mm]{geometry}
+\usepackage{fontspec}
+\usepackage{amsmath}
+\usepackage{unicode-math}
+\setmainfont{texgyretermes}[Extension=.otf,UprightFont=*-regular,BoldFont=*-bold,
+  ItalicFont=*-italic,BoldItalicFont=*-bolditalic]
+\setmathfont{texgyretermes-math.otf}
+\setsansfont{texgyreheros}[Extension=.otf,UprightFont=*-regular,BoldFont=*-bold,
+  ItalicFont=*-italic,BoldItalicFont=*-bolditalic,Scale=0.9]
+\setmonofont{Inconsolatazi4-Regular.otf}[BoldFont=Inconsolatazi4-Bold.otf,Scale=0.9]
+\linespread{1.06}
+\usepackage{microtype}
+
+\usepackage{booktabs,tabularx,longtable,array,makecell}
+\usepackage[table]{xcolor}
+\usepackage{graphicx}
+\usepackage[font=small,labelfont=bf,skip=5pt]{caption}
+\usepackage{enumitem}
+\setlist{itemsep=1pt,topsep=3pt,parsep=1pt}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc,backgrounds,decorations.pathreplacing}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage[numbers,sort&compress]{natbib}
+\setlength{\bibsep}{2pt plus 1pt}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage[capitalise,noabbrev]{cleveref}
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\large\bfseries}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.6em}{}
+\titlespacing*{\section}{0pt}{12pt plus 3pt minus 2pt}{5pt plus 1pt}
+\titlespacing*{\subsection}{0pt}{9pt plus 2pt minus 2pt}{3pt plus 1pt}
+\newcommand{\para}[1]{\paragraph{#1}}
+\titleformat{\paragraph}[runin]{\normalfont\normalsize\bfseries}{}{0pt}{}[.]
+\titlespacing*{\paragraph}{0pt}{5pt plus 2pt minus 1pt}{0.5em}
+
+\definecolor{ours}{HTML}{C2502E}
+\definecolor{oursLight}{HTML}{E9A58F}
+\definecolor{other}{HTML}{8A8F98}
+\definecolor{ink}{HTML}{2B2F36}
+\definecolor{boxfill}{HTML}{F4F1EC}
+\definecolor{ruleGray}{HTML}{B9BEC6}
+
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}p}
+\renewcommand{\arraystretch}{1.12}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\pp}{\,pp}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.3pt}
+\fancyhead[L]{\small\textit{Teams on a Fixed Model}}
+\fancyhead[R]{\small Z.~Zhang, 2026}
+\fancyfoot[C]{\small\thepage}
+\fancypagestyle{plain}{\fancyhf{}\renewcommand{\headrulewidth}{0pt}\fancyfoot[C]{\small\thepage}}
+
+\hypersetup{
+  pdftitle={Teams on a Fixed Model: Two Months of Harness Experiments with The One},
+  pdfauthor={Ziyang Zhang},
+  pdfsubject={Controlled experiments on agent harnesses and team structures for coding agents},
+  pdfkeywords={LLM agents, coding agents, multi-agent systems, agent harness, context engineering,
+    prompt caching, Terminal-Bench, evaluation methodology}
+}
+
+\begin{document}
+
+\thispagestyle{plain}
+\begin{center}
+  {\small Preprint, November 2026}\\[10pt]
+  {\LARGE\bfseries Teams on a Fixed Model:\\[3pt] Two Months of Harness Experiments with The One\par}
+  \vspace{12pt}
+  {\large Ziyang Zhang}\\[3pt]
+  {\normalsize The Zeroth}\\[1pt]
+  {\small\url{https://the-zeroth.com}}
+\end{center}
+\vspace{6pt}
+
+\begin{abstract}
+\noindent
+How much can an agent-team harness add when the model is fixed? We report eight weeks
+(28 September to 20 November 2026) of controlled experiments on The One, a product that runs teams
+of language-model agents on a person's computer. Three programs ran back to back: V1 on a task
+suite of our own (over 120 batches), V8 on Terminal-Bench~4.0 through the Harbor framework
+(315 jobs and 6,223 graded trials, with 30 tasks held out and never read), and a final
+Terminal-Bench~4.1 run under the Artificial Analysis protocol. The configuration we kept, a single
+lead agent on GPT-6.2 Sol at maximum reasoning effort, scored 60.9\% on the 63 tasks we could run
+and 58.1\% with the three GPU tasks counted as failures. That ties the model vendor's own agent
+(Codex) on the same model and effort while using about 30\% fewer input tokens, at \$1.35 per
+attempt at list price. Three findings carry the paper. Append-only context cut cost by a third to a
+half with no change in accuracy. On tasks that one context can hold, a single strong owner matched
+or beat every team structure we built, and same-model second opinions confirmed the shared
+misreading instead of catching it. The model's choice at a decision point moved when facts were
+placed in front of it, never with advice. Most levers that won on the tasks they were designed on
+failed on held-out tasks; we describe the held-out discipline that caught them, and report the
+negative results in full.
+
+\vspace{6pt}\noindent
+\textbf{Keywords:} LLM agents; coding agents; multi-agent systems; agent harness; context
+engineering; prompt caching; Terminal-Bench; evaluation methodology
+\end{abstract}
+
+\input{sec-intro}
+\input{sec-related}
+\input{sec-system}
+\input{sec-method}
+\input{sec-context}
+\input{sec-structure}
+\input{sec-judgment}
+\input{sec-person}
+\input{sec-tb41}
+\input{sec-discussion}
+\input{sec-threats}
+\input{sec-conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\clearpage
+\appendix
+\input{appendix}
+
+\end{document}

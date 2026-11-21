@@ -1,0 +1,71 @@
+\section{Context and Cost (RQ1)}
+\label{sec:context}
+
+Keeping every agent's prompt append-only cut cost per run by a third to a half at equal scores. The
+context levers measured after it moved cost by 7 to 20\%, and none of them moved accuracy
+(\cref{tab:levers}).
+
+\para{Append-only prompts} The classic compiler re-rendered the instructions on every cycle, so 30
+to 40\% of its requests broke the cache in the system part. In a paired run on 30 September (same
+restart and load, 20 runs, all solved), epochs read 89 to 94\% of prompt tokens from cache against
+76 to 81\% for classic. Classic cost 50 to 108\% more per run, for example \$0.81 against \$0.44
+for a solo SQL task. Prefix rewrites outside epoch boundaries were 0.25\% of 9,897 requests, and the
+cache survived idle gaps of up to an hour at 98 to 99\% hits.
+
+\para{The provider's cache needed the right request headers} On the ChatGPT backend a cache key
+alone cached nothing. Adding the session and thread headers raised hits to 97.8 to 99.6\%, and
+replaying the turn state took mid-turn requests from 0 to 98.5\%. Before these fixes one
+long-lived team had spent 555M prompt tokens in a week: it compacted at 85\% of an 872k-token
+window that the backend does not honour, its prompts reached 744k tokens, and nothing was cached.
+Compaction now fires at 231k tokens.
+
+\para{Delegation pays its cost in cold starts} In batch 2 (29 September), delegated runs finished
+25\% faster but sent 2.46 times the prompt tokens and 7.57 times the uncached ones. Fifty-two
+spawned agents each opened with an uncached first request of about 42k tokens, 57\% of those runs'
+uncached tokens. Two fixes followed: an agent's own notes now go after the shared instructions as a
+user message (a reviewer's first request went from 18k to 38k of 42k tokens cached), and a clone
+inherits its source's tools and epoch (a reviewer's first-request cache rate went from 13 to
+96\%). A team-wide cache key, a static hand-off tool and a warm-up gate cut uncached tokens per
+delegated run from 643k to 390k.
+
+\para{Latency follows tokens, cached or not} On 2,354 matched pairs of requests sent at the same
+moment of the same run, time to first event grew by a factor of 1.09 per 10k cached tokens and
+1.11 per 10k uncached tokens; the number of messages had no effect. The lead is the critical path:
+about 90\% of a run's active time is its own model calls, and 86\% of its turns make a single tool
+call. Fewer lead turns save time; smaller prompts mostly save money.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{Context levers on the V1 suite. Ratios are arm over same-batch base; ``full solves'' counts
+runs that received the full grade.}
+\label{tab:levers}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{37mm} >{\raggedright\arraybackslash}p{17mm} L L l@{}}
+\toprule
+Lever & Batch, size & Cost or tokens against base & Score and time & Decision \\
+\midrule
+Append-only epochs (against classic) & 30 Sep, 20 runs & Cost 33 to 52\% lower & All solved in both
+  & Default on \\
+Early project notes (seeded runs) & b101, 5 tasks & Tokens 0.84 & Time 0.83; full solves 5 against 4 &
+  Adopted \\
+Read guidance (no whole-file loads) & b96, 24 pairs & Uncached 0.80 ($p = 0.001$), cost 0.86 &
+  Time 0.95; full solves 18 against 16 & Adopted \\
+Brief schemas for never-called tools & b97, 24 pairs & First lead request 28.9k to 21.9k tokens;
+  tokens 0.89, cost 0.93 & Time 0.97; full solves 18 against 15 & Adopted \\
+Lean tool results & b100, 24 pairs & Tokens 0.98, cost 0.98 & Time 1.06 & Dropped \\
+One session across tasks & s1, 5 tasks & Cost 1.06 & Same scores & Dropped \\
+Moving old tool results out at 60k tokens & b95, 24 pairs & Uncached 1.29, cost 1.14 & Time 1.02 &
+  Dropped \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\para{Summaries lose rules} An audit of 861 committed summaries found them a median 1.1\% of their
+source, keeping 36.9\% of rule-sentence tokens verbatim; each later summary kept about half of what
+the one before it kept. The summarizer now carries the working assignment, its amendments and the
+newest report verbatim. Chat recall tests could not show the gain: every arm kept all eight planted
+facts through three summaries, so the change rests on the audit alone.
+
+\para{Answer to RQ1} Context management is a cost lever. Making the prompt prefix stable was worth
+more than every later token cut combined, and a cut that breaks the cache costs more than it saves
+(\cref{sec:discussion}). For time, what matters is the number of lead turns, not prompt size.

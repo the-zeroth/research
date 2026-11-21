@@ -1,0 +1,42 @@
+\section{相关工作}
+\label{sec:related}
+
+\para{编程智能体的基准与排行榜}SWE-bench 让“解决代码仓库里的 issue”成为检验编程智能体的标准方式
+\citep{jimenez2024swebench}。Terminal-Bench 在命令行环境中用困难任务评测智能体，每道题包含说明、容器镜像、测试和
+参考解 \citep{merrill2026terminalbench}；它通过 Harbor 运行，Harbor 负责准备任务容器、安装智能体，并以统一格式记录
+轨迹 \citep{harbor2026}。SWE Atlas 增加了关于真实代码库的问答，由专家编写的评分细则打分
+\citep{raghavendra2026sweatlas}。排行榜现在按“智能体 + 模型”排名：Terminal-Bench 榜单列出维护者自己跑的试验
+\citep{tbench2026board}；Artificial Analysis 指数用同一套协议跑多个基准，并在 Terminal-Bench~4.1 上审查每次通过的
+尝试，检查是否查找答案、是否修改测试 \citep{aa2026coding}；HAL 在不同基准之间统一框架，并在准确率旁边报告成本
+\citep{kapoor2026hal}。\citet{kapoor2024agents} 主张智能体评估应当控制成本、保留留出任务；这两条我们都遵守。
+
+\para{智能体框架}ReAct 让推理与工具调用交替进行 \citep{yao2023react}；SWE-agent 表明智能体与计算机之间的接口和
+提示词同样重要 \citep{yang2024sweagent}；Agentless 表明，在解决 issue 这类任务上，一条固定流程也能达到智能体循环的
+水平 \citep{xia2024agentless}。服务商自家的智能体，Codex CLI \citep{openai2025codex} 和 Claude Code
+\citep{anthropic2025claudecode}，都是可以选用助手的单智能体循环。实践者的建议是选择能解决问题的最简单结构
+\citep{schluntz2024effective}。我们最终的配置就是这样一个循环；本文补充的是，在固定模型上，把它和我们搭建的各种团队
+结构做对照比较。
+
+\para{多智能体系统}AutoGen、MetaGPT 和 ChatDev 把智能体组织成对话或软件公司式的角色
+\citep{wu2024autogen,hong2024metagpt,qian2024chatdev}；多智能体辩论在短答案任务上提高了事实性和推理能力
+\citep{du2024debate}；采样加投票的效果随智能体数量增长 \citep{li2024moreagents}。\citet{cemri2025mast} 根据执行轨迹
+建立了多智能体失败的分类，分为规格问题、智能体之间不一致、任务验证三类。实践者对团队何时值得用看法不一：
+\citet{yan2025dontbuild} 认为上下文分散会让多智能体的决策变得脆弱；\citet{anthropic2025multiagent} 则报告，在材料超出
+单个上下文的广泛调研任务上，由领队带并行子智能体更好。我们的结果介于两者之间：在单个上下文装得下的任务上，
+同一模型组成的团队增加了成本，却没有提高准确率。
+
+\para{验证、自我纠正与选择}自洽性方法对采样出的多条推理路径投票 \citep{wang2023selfconsistency}；Reflexion 和
+Self-Refine 把批评意见反馈给下一次尝试 \citep{shinn2023reflexion,madaan2023selfrefine}；CodeT 用生成的测试挑选程序
+\citep{chen2023codet}；当有验证器能挑出正确样本时，重复采样能提高覆盖率 \citep{brown2024monkeys,snell2025scaling}。
+\citet{huang2024cannot} 发现，没有外部反馈时，模型无法可靠地纠正自己的推理；LLM 评审还存在位置偏差和偏爱自己输出的
+偏差 \citep{zheng2023judge}。我们的阅读者、陪审员、选择者和检查者，都是这些思路在智能体框架中的实例；它们失效的原因
+正是 \citeauthor{huang2024cannot} 所说的：模型的第二个副本没有第一个副本缺少的任何反馈。
+
+\para{上下文与缓存}模型对长上下文的利用并不均匀 \citep{liu2024lost}；MemGPT 在有限的上下文中换入换出记忆
+\citep{packer2023memgpt}。服务商现在会缓存提示词前缀，并对命中缓存的 token 打折计费 \citep{openai2024caching}，
+因此提示词前缀是否稳定就成了一个成本变量。我们的上下文纪元正是围绕这个变量设计的。
+
+\para{评估方法}\citet{miller2024errorbars} 主张模型评估要给出误差范围、做配对比较。用同一个留出集做许多决策会让它
+过拟合 \citep{dwork2015reusable}；在一个测试集上调出来的结果，换到新测试集上可能下降 \citep{recht2019imagenet}；
+在看到数据之前预先登记分析方案，可以限制分析路径上的随意选择 \citep{nosek2018prereg}。编程智能体还会钻评分器的空子
+\citep{metr2025rewardhacking}，这正是 AA 审查每次通过的尝试、我们也扫描自己的尝试的原因。

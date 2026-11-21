@@ -1,0 +1,99 @@
+\section{系统}
+\label{sec:system}
+
+The One 在个人电脑或 Linux 服务器上运行语言模型智能体团队。桌面应用和无界面服务端 \code{the-one-server} 共用
+同一个后端；本文所有实验运行的都是服务端 \citep{zeroth2026server}。
+
+\para{带生命循环的智能体}一个智能体是 SQLite 里的一条持久记录，而不是一个进程。它的状态先提交，再有任何动作；
+被唤醒的智能体从这条记录继续，所以崩溃或重启不会丢失已经决定的工作。一轮只能通过生命周期工具结束（交付、交回、
+等待）；模型的回复如果没有调用这类工具，循环就继续；出错时会重试，而不是结束运行。
+
+\para{团队即图}一个团队是一份 YAML 定义：若干带有角色、提示词、工具和模型绑定的智能体，连成一张“谁可以把工作
+交给谁”的图。领队可以开一张子图（自己的克隆或一个助手团队），把工作交给另一个节点，或者询问使用者。我们最终保留的
+配置是\textbf{团队 7.0}：单个领队直接干活，只在被要求时才委派；更早上线的团队（6.0 到 6.6）加了检查节点和规则，
+见第~\ref{sec:structure}~节。
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  font=\small,
+  node distance=7mm and 14mm,
+  box/.style={draw=ink!70, rounded corners=2pt, align=flush center, inner sep=3pt,
+              minimum height=11.5mm, text width=24mm, fill=white},
+  ext/.style={box, fill=boxfill},
+  arr/.style={-{Stealth[length=2.1mm]}, semithick, draw=ink},
+  darr/.style={{Stealth[length=2.1mm]}-{Stealth[length=2.1mm]}, semithick, draw=ink},
+  lab/.style={font=\scriptsize, text=ink!85, align=flush center, inner sep=1.5pt}
+]
+  \node[ext] (harbor) {\textbf{Harbor}\\{\scriptsize 每次尝试}\\{\scriptsize 一个容器}};
+  \node[box, right=of harbor] (install) {安装已发布的\\服务端};
+  \node[box, right=of install] (run) {\code{the-one-server}\\\code{run}\\{\scriptsize 从 stdin 读取说明}};
+  \node[box, below=of run] (lead) {\textbf{领队智能体}\\{\scriptsize 团队 7.0}};
+  \node[box] (folder) at (install |- lead) {任务目录\\{\scriptsize shell、文件}};
+  \node[ext, right=of lead] (model) {\textbf{模型 API}\\{\scriptsize GPT-6.2 Sol，max}};
+  \node[box, below=of lead] (out) {\code{run.json}、\\ATIF 轨迹};
+  \node[box] (verify) at (install |- out) {验证器\\{\scriptsize 隐藏测试}};
+  \node[ext] (reward) at (harbor |- out) {\textbf{奖励}\\{\scriptsize 0 或 1}};
+
+  \draw[arr] (harbor) -- (install);
+  \draw[arr] (install) -- (run);
+  \draw[arr] (run) -- (lead);
+  \draw[darr] (lead) -- node[lab, above] {模型\\调用} (model);
+  \draw[darr] (lead) -- node[lab, above] {工具\\调用} (folder);
+  \draw[arr] (lead) -- node[lab, right, align=left, xshift=1.5pt] {交付或\\超时} (out);
+  \draw[arr] (out) -- node[lab, above] {然后} (verify);
+  \draw[arr] (verify) -- (reward);
+
+  \begin{scope}[on background layer]
+    \node[draw=ruleGray, dashed, rounded corners=4pt, inner sep=3.2mm,
+          fit=(install) (run) (lead) (folder) (out) (verify)] (ctr) {};
+  \end{scope}
+  \node[lab, anchor=south west] at (ctr.north west) {任务容器};
+\end{tikzpicture}
+\caption{通过 Harbor 适配器进行的一次 Terminal-Bench 尝试，即最终评估时的运行方式。在团队 7.0 中，领队自己干活，
+只在被要求时才开助手；其余各框对任何通过 Harbor 运行的智能体都一样。智能体自己的记录（\code{run.json}）包含结果、
+token 用量和按公开标价计算的成本；奖励只来自验证器。}
+\label{fig:flow}
+\end{figure}
+
+\para{上下文纪元}一次模型请求由三部分组成：稳定底座（指令、技能、项目笔记）、只追加的日志和一段简短的尾部
+（图~\ref{fig:epochs}）。新的上下文在出现的位置追加，之后不再移动，因此服务商的提示词缓存可以持续命中。底座只在
+指定的边界重新渲染：更换模型或工具、生成新的摘要，或者漂移超过 40k token。更早的“旧编译器”（classic）每一轮都会
+重新渲染指令。
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[font=\small, x=1mm, y=1mm]
+  \node[anchor=east, align=right] at (-2,14) {旧编译器\\[-2pt]{\scriptsize 每一轮}};
+  \fill[oursLight!70] (0,10) rectangle (38,18);
+  \node at (19,14) {指令，每轮重新渲染};
+  \fill[gray!16] (38,10) rectangle (96,18);
+  \node at (67,14) {历史};
+  \fill[gray!34] (96,10) rectangle (112,18);
+  \node at (104,14) {尾部};
+  \draw[line width=1.8pt, ours] (0,7.5) -- (5,7.5);
+  \node[anchor=west, font=\scriptsize, text=ours!85!black] at (6.5,7.4)
+    {缓存常在系统部分就断开（30--40\% 的请求）};
+  \node[anchor=east, align=right] at (-2,-6) {纪元};
+  \fill[gray!30] (0,-10) rectangle (38,-2);
+  \node at (19,-6) {稳定底座};
+  \fill[gray!16] (38,-10) rectangle (96,-2);
+  \node at (67,-6) {只追加日志};
+  \fill[gray!34] (96,-10) rectangle (112,-2);
+  \node at (104,-6) {尾部};
+  \draw[line width=1.8pt, ink!75] (0,-12.5) -- (96,-12.5);
+  \node[anchor=north, font=\scriptsize] at (48,-13.5)
+    {缓存前缀：89--94\% 的提示词 token 读自缓存（配对运行，20 道题）};
+\end{tikzpicture}
+\caption{旧编译器与上下文纪元下的请求布局。纪元在指定边界之间（更换模型或工具、生成新摘要、漂移超过 40k token）
+保持底座不变，只做追加，因此尾部之前的内容都能命中缓存。}
+\label{fig:epochs}
+\end{figure}
+
+\para{摘要}当历史变长时，一个摘要器（“冥想”，界面上显示为“在压缩对话历史”）会用一份精简摘要替换它。当前任务、
+对任务的修改和最新的汇报会原样保留，因为不这样做的话，摘要只能保住大约三分之一的规则句（第~\ref{sec:context}~节）。
+
+\para{无界面运行与 Harbor 适配器}\code{the-one-server run} 从标准输入读取任务，在任务目录里运行团队，没有人回答它的
+问题，最后写出 \code{run.json}（结果、用量、按公开标价计算的成本、改动的文件）以及每个智能体的 ATIF 轨迹。Harbor 的
+安装式智能体在每个任务容器里安装已发布的服务端，然后调用 \code{run}（图~\ref{fig:flow}）。适配器已经公开
+\citep{zhang2026adapter}；复现最终运行的命令见附录~\ref{app:repro}。

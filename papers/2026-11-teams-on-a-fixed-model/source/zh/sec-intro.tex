@@ -1,0 +1,47 @@
+\section{引言}
+\label{sec:intro}
+
+编程智能体排行榜现在排的是“智能体 + 模型”的组合，而不只是模型本身
+\citep{tbench2026board,aa2026coding,kapoor2026hal}，许多产品包装的也是同样几个前沿模型。对于做这层包装的人来说，
+框架（harness）指的是模型外围的一切：提示词、工具、上下文管理、团队结构和运行时检查。实际要回答的问题是：
+模型固定以后，框架还能带来什么。已有的答案并不一致。多智能体框架报告了角色扮演团队、辩论和投票带来的提升
+\citep{wu2024autogen,hong2024metagpt,qian2024chatdev,du2024debate,li2024moreagents}；对这类系统的失败分析发现，
+它们相对单个智能体的提升往往很小 \citep{cemri2025mast}；业界实践者有的主张共享上下文的单个智能体
+\citep{yan2025dontbuild}，有的主张由领队把工作分给并行的助手 \citep{anthropic2025multiagent}。
+
+我们开发 The One，这款产品在个人电脑或 Linux 服务器上运行语言模型智能体团队。2026 年 9 月 28 日至 11 月 20 日，
+我们在它上面先后进行了三个实验项目，回答四个问题：
+\begin{enumerate}[label=\textbf{RQ\arabic*},leftmargin=3.2em]
+  \item 上下文管理在成本、延迟和准确率上能换来什么？
+  \item 团队结构能否胜过一个能力强的单个智能体？在哪些任务上？
+  \item 框架能否在运行失败的那些关键点上引导模型的判断？
+  \item 由此得到的配置，与模型服务商自家的智能体相比处在什么位置？
+\end{enumerate}
+
+\para{贡献}本文的贡献主要是一份记录和一套方法，而不是一个系统。
+\begin{itemize}[leftmargin=1.4em]
+  \item \textbf{对照实验记录。}在自建任务集上做了 120 多批实验（V1）；在 Terminal-Bench~4.0 上跑了 315 个 Harbor
+    作业、6,223 次已评分试验（V8）；按 Artificial Analysis（AA）的协议在 Terminal-Bench~4.1 上跑了一次。每批实验
+    开跑之前，都先写下规则、分支和我们自己的预测。全部实验的索引见附录~\ref{app:index}。
+  \item \textbf{一套分辨率已知的留出纪律。}30 道 Terminal-Bench 题目从未打开；每个实验组都和它的基线在同一时段
+    一起运行；差异通过题内置换检验来判断；得零分的试验在空闲机器上重评。这套纪律抓出了我们自己的大部分
+    “假胜利”，我们也给出了它能分辨的最小效应（第~\ref{sec:method}~节）。
+  \item \textbf{实测效应，大多是负面的。}上下文手段对成本和延迟的影响（第~\ref{sec:context}~节）；团队结构和同模型
+    第二意见共有的失败模式（第~\ref{sec:structure}~节）；以及一条引导模型的规律：提示改变过程，事实改变选择
+    （第~\ref{sec:judgment}~节）。
+  \item \textbf{公开的适配器。}Harbor 适配器和完整的运行命令已经公开 \citep{zhang2026adapter}；该配置在
+    Terminal-Bench~4.1 上与服务商自家的智能体持平，输入 token 更少（第~\ref{sec:tb41}~节）。
+\end{itemize}
+
+\para{主要发现}只追加的提示词把每次运行的成本降低了三分之一到一半，得分不变；之后的上下文手段又降低了
+7\% 到 20\%，但都没有改变准确率。在单个上下文装得下的任务上，一个能力强的负责者不输于我们搭建的任何团队，
+成本通常只是团队的一小部分，原因是剩下的失败都是单一的误读，同一模型的每个副本都会犯同样的错。
+给模型提建议的文字改变了它下一步做什么，却没有改变它的选择；把事实和测量结果摆到它面前，才改变了选择。
+模型本身决定了上限：从 GPT-6.1 Sol 换到 GPT-6.2 Sol，对哪些题能通过的影响比任何框架手段都大。
+
+\para{范围}本文不提出新模型，不给出单个上下文装不下的任务上的结论，也不声称任何排行榜名次。所有运行都由我们
+自己在一台机器上完成，大多通过订阅账号登录，成本是按 API 公开标价重新计算的（第~\ref{sec:threats}~节）。
+
+本文结构如下：第~\ref{sec:related}~节回顾相关工作，第~\ref{sec:system}~节介绍系统，第~\ref{sec:method}~节介绍评估方法；
+第~\ref{sec:context}--\ref{sec:tb41}~节报告结果；第~\ref{sec:discussion}~节分析多数手段失效的原因；
+第~\ref{sec:threats}~节讨论有效性威胁；第~\ref{sec:conclusion}~节总结全文。

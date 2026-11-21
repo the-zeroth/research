@@ -1,0 +1,88 @@
+\section{Evaluation Method}
+\label{sec:method}
+
+Three programs ran back to back on the same product (\cref{tab:programs}). V1 tested team designs
+and efficiency on a suite we built; V8 tested levers on Terminal-Bench~4.0 through Harbor; a final
+run put the chosen configuration on Terminal-Bench~4.1 the way Artificial Analysis runs agents.
+
+\begin{table}[t]
+\centering
+\small
+\caption{The three programs. Trials in V8 count every graded attempt, including screens and
+re-runs.}
+\label{tab:programs}
+\begin{tabularx}{\textwidth}{@{}l l L >{\raggedright\arraybackslash}p{30mm} >{\raggedright\arraybackslash}p{33mm}@{}}
+\toprule
+Program & Dates (2026) & Tasks & Models & Scale \\
+\midrule
+V1 & 28 Sep -- 26 Oct & Own suite: authored, repository, public (Terminal-Bench, DeepSWE) and
+  question-answering tasks with hidden graders & GPT-6 Astra, then GPT-6.1 Sol at medium effort &
+  Over 120 batches on two local evaluation instances \\
+V8 & 27 Oct -- 19 Nov & Terminal-Bench~4.0: the 63 tasks that run without a GPU, split 33 readable
+  and 30 unread & GPT-6.1 Sol, GPT-6.1 Terra (screens), GPT-6.2 Sol & 315 Harbor jobs, 6,223
+  graded trials on one Linux PC \\
+Final & 20 Nov & Terminal-Bench~4.1 at AA's dataset digest, 63 tasks & GPT-6.2 Sol at max effort &
+  189 attempts, 3 per task \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Task sets}
+
+\para{The V1 suite} Each task ships a hidden grader and a reference solution. Before a task entered
+the suite, a fresh model solved it blind from an empty workspace, and its grade checked the
+grader; this found two real grader defects in one early batch. Saturated or unfair tasks were
+retired (52 on 9 October, leaving 32 active). A design that won on the tasks it was tuned on had to
+hold on tasks it was not tuned on before it shipped.
+
+\para{The V8 split} On 30 October the 63 runnable Terminal-Bench~4.0 tasks were split into 25
+development and 38 held-out tasks. After the first held-out read (4 November), the 8 held-out tasks
+on which a board agent beat us were opened for study. That left 33 \emph{readable} tasks, whose
+trajectories, failing tests and task files we read to design levers, and 30 \emph{unread} tasks for
+confirmation. The unread tasks were seen only as summed rewards, costs, minutes and model calls; no
+name, trajectory or test of theirs was opened, then or for this paper.
+
+\subsection{Infrastructure}
+
+V8 ran Harbor 0.24.0 (0.26.0 for the final run) \citep{harbor2026} on a desktop PC with 32 hardware
+threads and 96\,GB of memory, about 30 trials at a time after a swap storm at higher load lost 44
+runs. The team's own time limit was 465 minutes against the tasks' 480, because the server's
+3-hour default had cut an 8-hour task short. Before 5 November, runs used a Docker virtual machine
+on a Mac at two trials at a time; its held-out baseline was lower than the PC's, one reason every
+comparison is made within one batch on one host.
+
+\subsection{Metrics}
+
+A trial's reward $r_{t,d}$ for task $t$ and draw $d$ is 0 or 1. Our score is the sum over tasks of
+each task's mean reward,
+\begin{equation}
+  S = \sum_{t \in T} \frac{1}{n_t} \sum_{d=1}^{n_t} r_{t,d},
+  \label{eq:score}
+\end{equation}
+so $S/|T|$ is the pass rate. Missing or reward-less attempts count as 0. Cost is the run's tokens
+priced at OpenAI's API list price from the server's price table (checked 18 October 2026),
+although most runs used a ChatGPT (Codex) sign-in. Time is the agent's own time per attempt; V1's
+efficiency work used active time up to the last model call.
+
+\subsection{Statistical analysis}
+
+On the Terminal-Bench sets, an arm and its base each ran two or more draws per task. We tested the
+difference in $S$ by re-dealing draws between arm and base within each task (20,000
+permutations), which gives the null standard deviation and a $p$-value. With two draws a
+side on the unread 30, the null standard deviation is about 1.4 (1.33 to 1.53 across reads), so one
+read resolves differences of about 2.7 tasks; with four draws a side it is about 0.94. Where a
+standard error is given, it is over tasks. V1 compared paired runs with exact Wilcoxon signed-rank
+tests on log ratios of cost or time \citep{wilcoxon1945}.
+
+\subsection{Experimental hygiene}
+
+\begin{itemize}[leftmargin=1.4em]
+  \item \emph{Same-batch bases.} Every arm ran beside its base in the same hours, because one base
+    moved by +1.67 between batches.
+  \item \emph{Quiet re-grades.} Every zero was re-graded once on an idle machine, because verifier
+    timeouts under load produced false zeros. On an idle machine they were rare: in two large
+    re-grades 43 of 43 and 54 of 54 zeros stayed zero, and in a third 1 of 74 came back.
+  \item \emph{Registration.} The rule, the branches and our own forecast were written into a lab
+    notebook before each batch \citep{nosek2018prereg}; the V8 notebook reached 9,276 lines in 387
+    sections. An independent reviewer agent was asked to find flaws in designs and reads.
+\end{itemize}

@@ -1,0 +1,123 @@
+% 固定模型之上的智能体团队：The One 两个月框架实验（中文版）
+% 编译：tectonic -X compile main.tex（XeLaTeX；BibTeX 自动运行）
+% 字体：fontset=mac 使用 macOS 自带中文字体；在 Linux 或 Windows 上改为 fontset=fandol（TeX Live 自带）。
+\documentclass[UTF8,zihao=5,fontset=mac]{ctexart}
+
+\usepackage[a4paper,textwidth=152mm,textheight=232mm,headsep=8mm,footskip=11mm]{geometry}
+\usepackage{amsmath}
+\usepackage{unicode-math}
+\setmainfont{texgyretermes}[Extension=.otf,UprightFont=*-regular,BoldFont=*-bold,
+  ItalicFont=*-italic,BoldItalicFont=*-bolditalic]
+\setmathfont{texgyretermes-math.otf}
+\setsansfont{texgyreheros}[Extension=.otf,UprightFont=*-regular,BoldFont=*-bold,
+  ItalicFont=*-italic,BoldItalicFont=*-bolditalic,Scale=0.9]
+\setmonofont{Inconsolatazi4-Regular.otf}[BoldFont=Inconsolatazi4-Bold.otf,Scale=0.9]
+
+\usepackage{booktabs,tabularx,longtable,array,makecell}
+\usepackage[table]{xcolor}
+\usepackage{graphicx}
+\usepackage[font=small,labelfont=bf,labelsep=quad,skip=5pt]{caption}
+\usepackage{enumitem}
+\setlist{itemsep=1pt,topsep=3pt,parsep=1pt}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc,backgrounds,decorations.pathreplacing}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage[numbers,sort&compress]{natbib}
+\setlength{\bibsep}{2pt plus 1pt}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+\ctexset{
+  section={format=\large\bfseries\raggedright, beforeskip={12pt plus 3pt minus 2pt},
+    afterskip={6pt plus 1pt}},
+  subsection={format=\normalsize\bfseries\raggedright, beforeskip={9pt plus 2pt minus 2pt},
+    afterskip={4pt plus 1pt}},
+  abstractname={摘\quad 要},
+  bibname={参考文献},
+  appendixname={附录},
+}
+\newcommand{\para}[1]{\par\vspace{3pt plus 1pt}\noindent\textbf{#1}\quad}
+
+\definecolor{ours}{HTML}{C2502E}
+\definecolor{oursLight}{HTML}{E9A58F}
+\definecolor{other}{HTML}{8A8F98}
+\definecolor{ink}{HTML}{2B2F36}
+\definecolor{boxfill}{HTML}{F4F1EC}
+\definecolor{ruleGray}{HTML}{B9BEC6}
+
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\renewcommand{\arraystretch}{1.15}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.3pt}
+\fancyhead[L]{\small 固定模型之上的智能体团队}
+\fancyhead[R]{\small 张子阳，2026}
+\fancyfoot[C]{\small\thepage}
+\fancypagestyle{plain}{\fancyhf{}\renewcommand{\headrulewidth}{0pt}\fancyfoot[C]{\small\thepage}}
+
+\hypersetup{
+  pdftitle={固定模型之上的智能体团队：The One 两个月框架实验},
+  pdfauthor={张子阳 (Ziyang Zhang)},
+  pdfsubject={在固定模型上对智能体框架与团队结构做的对照实验},
+  pdfkeywords={大语言模型智能体, 编程智能体, 多智能体系统, 智能体框架, 上下文工程, 提示词缓存,
+    Terminal-Bench, 评估方法}
+}
+
+\begin{document}
+
+\thispagestyle{plain}
+\begin{center}
+  {\small 预印本，2026 年 11 月}\\[10pt]
+  {\LARGE\bfseries 固定模型之上的智能体团队：\\[4pt] The One 两个月框架实验\par}
+  \vspace{12pt}
+  {\large 张子阳}\\[3pt]
+  {\normalsize The Zeroth}\\[1pt]
+  {\small\url{https://the-zeroth.com}}\\[6pt]
+  {\footnotesize 英文版：\textit{Teams on a Fixed Model: Two Months of Harness Experiments with The One}}
+\end{center}
+\vspace{4pt}
+
+\begin{abstract}
+\noindent
+模型固定时，一个智能体团队框架（harness）还能带来多少提升？本文报告 2026 年 9 月 28 日至
+11 月 20 日共八周在 The One 上做的对照实验。The One 是一款在个人电脑上运行语言模型智能体团队的
+产品。三个实验项目先后进行：V1 在我们自建的任务集上进行（120 多批）；V8 通过 Harbor 框架在
+Terminal-Bench~4.0 上进行（315 个作业、6,223 次已评分试验，其中 30 道题留出、从未读过）；最后按
+Artificial Analysis 的协议在 Terminal-Bench~4.1 上跑了一次。最终保留的配置是单个领队智能体，用
+GPT-6.2 Sol、最高推理强度（max）。它在能运行的 63 道题上得分 60.9\%，把 3 道需要 GPU 的题记为失败时得分
+58.1\%，与模型服务商自家的智能体（Codex）在同一模型、同一强度下持平，同时输入 token 少约 30\%，
+按公开标价每次尝试 1.35 美元。本文有三个主要发现。第一，只追加的上下文把成本降低三分之一到一半，
+准确率不变。第二，在单个上下文装得下的任务上，一个能力强的负责者不输于我们搭建的任何团队结构，
+而同一模型给出的第二意见只会确认共同的误读，抓不住它。第三，模型在决策点上的选择只有在事实摆到它
+面前时才会改变，建议从未改变它。多数在设计任务上胜出的手段到了留出任务上就失效了；本文介绍了发现
+这些问题的留出纪律，并完整报告了负面结果。
+
+\vspace{6pt}\noindent
+\textbf{关键词：}大语言模型智能体；编程智能体；多智能体系统；智能体框架；上下文工程；
+提示词缓存；Terminal-Bench；评估方法
+\end{abstract}
+
+\input{sec-intro}
+\input{sec-related}
+\input{sec-system}
+\input{sec-method}
+\input{sec-context}
+\input{sec-structure}
+\input{sec-judgment}
+\input{sec-person}
+\input{sec-tb41}
+\input{sec-discussion}
+\input{sec-threats}
+\input{sec-conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\clearpage
+\appendix
+\input{appendix}
+
+\end{document}

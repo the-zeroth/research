@@ -1,0 +1,84 @@
+\section{多数手段为何失效}
+\label{sec:discussion}
+
+我们尝试过的大多数东西都没能在留出题上站住（图~\ref{fig:transfer}）。每一种为难题搭建的结构，到了留出题上都失去了
+领先；只有验收检查者保持领先，而且它只作为规格类需求的关口上线。这些失败有五个共同原因。我们把它们写出来，是因为
+每一个都花了我们几周时间，也会让别人花同样的时间。
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.50\textwidth, height=5.4cm,
+  xmin=-35, xmax=55, ymin=0.4, ymax=5.6, y dir=reverse,
+  xtick={-20,0,20,40}, minor xtick={-30,-10,10,30,50}, xminorgrids,
+  minor grid style={ruleGray!25},
+  ytick={1,...,5},
+  yticklabels={
+    {每个节点加阅读规则（V1）},
+    {三个构建者加一个评审（V1）},
+    {三个阅读者加一个调和者（V1）},
+    {验收检查者（V1）},
+    {首次交付时检查，O2（V8）}},
+  yticklabel style={font=\footnotesize},
+  tick label style={font=\footnotesize},
+  xlabel={实验组减同批基线（百分点）},
+  xlabel style={font=\footnotesize},
+  xmajorgrids, grid style={ruleGray!45},
+  axis x line*=bottom, axis y line*=left,
+  y axis line style={draw=none}, ytick style={draw=none},
+  legend style={font=\footnotesize, draw=none, fill=none, at={(0.5,1.03)}, anchor=south,
+    legend columns=2, /tikz/every even column/.append style={column sep=8pt}},
+  clip=false,
+]
+  \draw[ink!55, dashed] (axis cs:0,0.4) -- (axis cs:0,5.6);
+  \addplot[draw=ruleGray, line width=1.3pt, forget plot] coordinates {(33.3,1) (-20.0,1)};
+  \addplot[draw=ruleGray, line width=1.3pt, forget plot] coordinates {(35.8,2) (-10.0,2)};
+  \addplot[draw=ruleGray, line width=1.3pt, forget plot] coordinates {(21.0,3) (-28.2,3)};
+  \addplot[draw=ruleGray, line width=1.3pt, forget plot] coordinates {(46.7,4) (10.0,4)};
+  \addplot[draw=ruleGray, line width=1.3pt, forget plot] coordinates {(17.9,5) (-6.7,5)};
+  \addplot[only marks, mark=o, mark size=2.6pt, thick, color=ink, mark options={fill=white}]
+    coordinates {(33.3,1) (35.8,2) (21.0,3) (46.7,4) (17.9,5)};
+  \addlegendentry{设计题}
+  \addplot[only marks, mark=*, mark size=2.6pt, color=ours]
+    coordinates {(-20.0,1) (-10.0,2) (-28.2,3) (10.0,4) (-6.7,5)};
+  \addlegendentry{留出题}
+\end{axis}
+\end{tikzpicture}
+\caption{从设计题到留出题的迁移。每个手段相对同批基线在通过率上的增益：空心为它所针对的设计题，实心为留出题。V1 各行
+来自小样本（每边 5 到 28 次运行，见表~\ref{tab:structures}）；O2 一行比较的是多次运行结果不一致的可读题（每边 28 次试验）
+与未读的 30 道题（每边两次运行）。只有验收检查者在样本外保持领先。}
+\label{fig:transfer}
+\end{figure}
+
+\begin{enumerate}[leftmargin=1.6em]
+  \item \textbf{同模型冗余带来的信息很少。}剩下的失败是对一句含糊的话的单一解读，而且多数运行都以同样方式解读。
+    同一模型的阅读者、陪审员、评分者和检查者共享这种解读，所以它们只会确认它。这就是 \citet{huang2024cannot} 所说的
+    自我纠正极限在团队层面的表现：没有新的事实，模型的第二个副本并不拥有第一个副本缺少的东西。
+  \item \textbf{全局触发是用一种失败换另一种失败。}每次交付都触发的检查，修好了它所针对的题，却也返工了原本已经做对
+    的题。O2 在未读题上少了 2.0，另一个全局检查少了 1.5；实时提示在它针对的 7 道题上多了 1.0，在其余 26 道上少了 1.0。
+  \item \textbf{建议改变不了判断。}人设文字、规则和实时提示改变了模型下一步做什么，而不是它选择什么。阅读规则甚至让
+    工作缩水，因为它让模型觉得可以跳过文字没有明说的部分。
+  \item \textbf{打断缓存的 token 削减，花掉的比省下的多。}在 60k token 时移出旧工具结果，每轮省下约 10k token，却让
+    未命中缓存的 token 增加 29\%、成本增加 14\%。
+  \item \textbf{设计题上的胜利属于样本内。}手段是根据可读题的轨迹设计的，所以在可读题上的筛查属于样本内，会高估效果；
+    这正是未读留出集所防范的自适应过拟合 \citep{dwork2015reusable}。有一个手段在筛查中 3 次通过 3 次，下一次运行时 3 次
+    只通过 1 次。
+\end{enumerate}
+
+\para{我们自己的预测也是问题的一部分}每批实验之前我们都写下预测。对于根据可读题设计的手段，预测的方向常常就是错的：
+O2 预测在未读题上 $+1.5$，实测 $-2.0$；实时提示预测 $+1.0$，实测 $0.0$。预先登记没有让预测变准，但让这些错误无法被
+忽略。
+
+\para{对框架构建者的启示}以下五条做法都对应上文的某项测量。
+\begin{itemize}[leftmargin=1.4em]
+  \item 先让提示词前缀稳定，再削减 token，并按请求测量缓存命中；打断缓存的削减花掉的比省下的多
+    （第~\ref{sec:context}~节）。
+  \item 看延迟时，数领队的轮次，而不是它提示词的大小（第~\ref{sec:context}~节）。
+  \item 在加同一模型的智能体之前，先测一道题在多次运行之间结果不一致的频率。如果失败在每次运行中都是同一种解读，
+    多几个副本只会增加成本，不会增加信息（第~\ref{sec:structure}~节和第~\ref{sec:judgment}~节）。
+  \item 运行时的帮助应当由通过的运行从不出现的状态触发，例如很早就交回失败，而不是在每次交付时触发
+    （第~\ref{sec:structure}~节）。
+  \item 保留一个未读的留出集，让每个实验组和它的基线在同一时段运行，并在读取结果之前说明测量工具的分辨率
+    （第~\ref{sec:method}~节）。
+\end{itemize}
