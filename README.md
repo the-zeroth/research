@@ -7,9 +7,9 @@ The Zeroth 的论文与研究成果。每篇论文一个目录，里面有 PDF�
 
 ## Papers · 论文
 
-| Date | Paper | Read |
-| --- | --- | --- |
-| 2026-11 | **Teams on a Fixed Model: Two Months of Harness Experiments with The One**<br>固定模型之上的智能体团队：The One 两个月框架实验 | [English](papers/2026-11-teams-on-a-fixed-model/teams-on-a-fixed-model.pdf) · [中文](papers/2026-11-teams-on-a-fixed-model/teams-on-a-fixed-model-zh.pdf) · [details](papers/2026-11-teams-on-a-fixed-model) |
+| Date | Paper | Read | DOI |
+| --- | --- | --- | --- |
+| 2026-11 | **Teams on a Fixed Model: Two Months of Harness Experiments with The One**<br>固定模型之上的智能体团队：The One 两个月框架实验 | [English](papers/2026-11-teams-on-a-fixed-model/teams-on-a-fixed-model.pdf) · [中文](papers/2026-11-teams-on-a-fixed-model/teams-on-a-fixed-model-zh.pdf) · [details](papers/2026-11-teams-on-a-fixed-model) | [10.5281/zenodo.24410340](https://doi.org/10.5281/zenodo.24410340) |
 
 ## Related code · 相关代码
 

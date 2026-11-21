@@ -4,6 +4,9 @@
 
 Ziyang Zhang (张子阳), The Zeroth · Preprint, November 2026
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24410340.svg)](https://doi.org/10.5281/zenodo.24410340)
+
+- Zenodo record: [10.5281/zenodo.24410340](https://doi.org/10.5281/zenodo.24410340) (both PDFs and the source)
 - [PDF, English (18 pages)](teams-on-a-fixed-model.pdf)
 - [PDF，中文（21 页）](teams-on-a-fixed-model-zh.pdf)
 - [LaTeX source](source) (`en/` and `zh/`; build with `tectonic -X compile main.tex`)
@@ -44,12 +47,15 @@ The One 上做的对照实验。The One 是一款在个人电脑上运行语言�
 
 ```bibtex
 @misc{zhang2026teams,
-  title  = {Teams on a Fixed Model: Two Months of Harness Experiments with The One},
-  author = {Zhang, Ziyang},
-  year   = {2026},
-  month  = nov,
-  note   = {Preprint},
-  url    = {https://github.com/the-zeroth/research/tree/main/papers/2026-11-teams-on-a-fixed-model}
+  title     = {Teams on a Fixed Model: Two Months of Harness Experiments with The One},
+  author    = {Zhang, Ziyang},
+  year      = {2026},
+  month     = nov,
+  publisher = {Zenodo},
+  version   = {1.0},
+  doi       = {10.5281/zenodo.24410340},
+  url       = {https://doi.org/10.5281/zenodo.24410340},
+  note      = {Preprint}
 }
 ```
 
