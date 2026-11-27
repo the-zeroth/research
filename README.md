@@ -11,6 +11,12 @@ The Zeroth 的论文与研究成果。每篇论文一个目录，里面有 PDF�
 | --- | --- | --- | --- |
 | 2026-11 | **Teams on a Fixed Model: Two Months of Harness Experiments with The One**<br>固定模型之上的智能体团队：The One 两个月框架实验 | [English](papers/2026-11-teams-on-a-fixed-model/teams-on-a-fixed-model.pdf) · [中文](papers/2026-11-teams-on-a-fixed-model/teams-on-a-fixed-model-zh.pdf) · [details](papers/2026-11-teams-on-a-fixed-model) | [10.5281/zenodo.24410340](https://doi.org/10.5281/zenodo.24410340) |
 
+## Research notes · 研究记录
+
+- [Working groups](working-groups) · [工作组](working-groups): how each of The One's working groups was
+  measured on real jobs, what we tried and what shipped (front-end design, deployment and operations, software
+  development). 每个工作组怎样用真实任务衡量、试过什么、哪些上线（前端设计、部署运维、软件开发）。
+
 ## Related code · 相关代码
 
 - [the-one-harbor](https://github.com/the-zeroth/the-one-harbor): the Harbor adapter that runs The One on
